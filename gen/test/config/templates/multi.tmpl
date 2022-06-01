@@ -1,0 +1,28 @@
+package multi
+{{ $importPkg := .ImportPkg }}
+{{ $table := .Name }}
+
+type {{ pascal .Name }} struct {
+	{{- range .Fields }}
+        {{if or .RelHasMany .RelManyToMany }}{{ pascal .Name | plural }}  []{{else}}{{ pascal .Name }} {{end}}{{if not .RelNone}}*{{end}}{{ .Type.Kind }}
+	{{- end }}
+}
+
+func ({{ receiver  $importPkg $table }} *{{ pascal $table }}) Ops(name string) []string{
+    switch name {
+        {{- range $f := .Fields }}
+            case "{{if or .RelHasMany .RelManyToMany }}{{ camel $f.Name | plural }}{{else}}{{ camel .Name }}{{end}}":
+                return []string{
+                    {{- range $op := $f.Ops }}
+                        "{{ $op.Name }}",
+                    {{- end }}
+                }
+        {{- end }}
+        default :
+            return []string{}
+    }
+}
+
+func ({{ receiver  $importPkg $table }} *{{ pascal .Name }}) GetName() string {
+    return "{{.Name}}"
+}

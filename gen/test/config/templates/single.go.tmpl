@@ -1,0 +1,21 @@
+package single
+
+{{ $importPkg := .ImportPkg }}
+{{ $g := .Generator }}
+
+import (
+    "fmt"
+
+    "{{ .Package }}/gen/test/config/expected/path"
+)
+
+{{- range .Tables }}
+    type {{ pascal .Name }} struct {
+        {{ $g.Template "import/fields.tmpl" .Fields }}
+        p path.Test
+    }
+
+    func ({{ receiver $importPkg .Name }} *{{ pascal .Name }}) GetName() string {
+        return "{{.Name}}"
+    }
+{{- end }}

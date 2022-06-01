@@ -1,0 +1,3 @@
+{{- range . }}
+	{{if or .RelHasMany .RelManyToMany }}{{ pascal .Name | plural }}  []{{else}}{{ pascal .Name }} {{end}}{{if not .RelNone}}*{{end}}{{ .Type.Kind }}
+{{- end }}

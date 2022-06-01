@@ -1,0 +1,412 @@
+syntax = "proto3";
+
+package testproject;
+
+import "google/api/annotations.proto";
+import "google/api/field_behavior.proto";
+import "google/protobuf/empty.proto";
+import "google/protobuf/field_mask.proto";
+import "google/protobuf/timestamp.proto";
+import "google/protobuf/wrappers.proto";
+import "protoc-gen-openapiv2/options/annotations.proto";
+
+// Generated according to https://cloud.google.com/apis/design/standard_methods
+service testprojectService {
+  rpc ListCategories(ListCategoriesRequest) returns (ListCategoriesResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/categories"
+    };
+  }
+  rpc GetcategoryById(GetCategoryByIdRequest) returns (Category) {
+    option (google.api.http) = {
+      get: "/api/v1/categories:byId/{id}"
+    };
+  }
+  rpc BatchGetCategoryById(BatchGetCategoryByIdRequest) returns (BatchCategoryResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/categories:batchById"
+    };
+  }
+  rpc ListPosts(ListPostsRequest) returns (ListPostsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/posts"
+    };
+  }
+  rpc GetpostById(GetPostByIdRequest) returns (Post) {
+    option (google.api.http) = {
+      get: "/api/v1/posts:byId/{id}"
+    };
+  }
+  rpc BatchGetPostById(BatchGetPostByIdRequest) returns (BatchPostResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/posts:batchById"
+    };
+  }
+  rpc ListPostsWithAuthor(ListPostsRequest) returns (ListPostsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/authors/{parent}/posts"
+    };
+  }
+  rpc ListPostsWithCategory(ListPostsRequest) returns (ListPostsResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/categories/{parent}/posts"
+    };
+  }
+  rpc ListUsers(ListUsersRequest) returns (ListUsersResponse) {
+    option (google.api.http) = {
+      get: "/api/v1/users"
+    };
+  }
+  rpc GetuserById(GetUserByIdRequest) returns (User) {
+    option (google.api.http) = {
+      get: "/api/v1/users:byId/{id}"
+    };
+  }
+  rpc BatchGetUserById(BatchGetUserByIdRequest) returns (BatchUserResponse) {
+    option (google.api.http) = {
+      post: "/api/v1/users:batchById"
+    };
+  }
+}
+
+message Category {
+  int32 id = 1;
+  string name = 2;
+}
+
+message ListCategoriesRequest {
+  enum View {
+    VIEW_UNSPECIFIED = 0;
+    BASIC = 1;
+    WITH_EDGES = 2;
+  }
+  // The parent resource name, for example, "shelves/shelf1".
+  string parent = 1;
+  // The maximum number of items to return.
+  int32 page_size = 2;
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 3;
+  string filter = 4;
+  // The string value should follow SQL syntax: comma separated list of fields.
+  // For example: "foo,bar". The default sorting order is ascending. To specify
+  // descending order for a field, a suffix " desc" should be appended to the
+  // field name. For example: "foo desc,bar". Redundant space characters in the
+  // syntax are insignificant. "foo,bar desc" and "  foo ,  bar  desc  " are
+  // equivalent.
+  string order_by = 5;
+  View view = 6;
+}
+
+message ListCategoriesResponse {
+  // The field name should match the noun "Category" in the method name.
+  // There will be a maximum number of items returned based on the page_size
+  // field in the request.
+  repeated Category categories = 1;
+  // Token to retrieve the next page of results, or empty if there are no more
+  // results in the list.
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message GetCategoryByIdRequest {
+  enum View {
+    VIEW_UNSPECIFIED = 0;
+    BASIC = 1;
+    WITH_EDGES = 2;
+  }
+  // The field will contain name of the resource requested.
+  string id = 1;
+  View view = 2;
+}
+
+message BatchGetCategoryByIdRequest {
+  enum View {
+    VIEW_UNSPECIFIED = 0;
+    BASIC = 1;
+    WITH_EDGES = 2;
+  }
+  // The field will contain name of the resource requested.
+  repeated string ids = 1;
+  View view = 2;
+}
+
+message BatchCategoryResponse {
+  repeated Category categories = 1;
+}
+
+message CreateCategoryRequest {
+  // The parent resource name where the Category is to be created.
+  string parent = 1;
+  // The Category resource to create.
+  // The field name should match the Noun in the method name.
+  Category category = 2;
+}
+
+message BatchCreateCategoryRequest {
+  // The parent resource name where the Category is to be created.
+  string parent = 1;
+  // The Category resource to create.
+  // The field name should match the Noun in the method name.
+  repeated Category categories = 2;
+}
+
+message UpdateCategoryRequest {
+  // The Category resource which replaces the resource on the server.
+  Category category = 1;
+  // The update mask applies to the resource. For the `FieldMask` definition,
+  // see
+  // https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message BatchUpdateCategoryRequest {
+  // The Category resource which replaces the resource on the server.
+  repeated Category categories = 1;
+  // The update mask applies to the resource. For the `FieldMask` definition,
+  // see
+  // https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message DeleteCategoryRequest {
+  // The resource id of the Category to be deleted.
+  int32 id = 1;
+}
+
+message BatchDeleteCategoryRequest {
+  // The resource id of the Category to be deleted.
+  repeated int32 ids = 1;
+}
+
+message Post {
+  int32 id = 1;
+  string name = 2;
+  User author = 3;
+  repeated Category categories = 4;
+}
+
+message ListPostsRequest {
+  enum View {
+    VIEW_UNSPECIFIED = 0;
+    BASIC = 1;
+    WITH_EDGES = 2;
+  }
+  // The parent resource name, for example, "shelves/shelf1".
+  string parent = 1;
+  // The maximum number of items to return.
+  int32 page_size = 2;
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 3;
+  string filter = 4;
+  // The string value should follow SQL syntax: comma separated list of fields.
+  // For example: "foo,bar". The default sorting order is ascending. To specify
+  // descending order for a field, a suffix " desc" should be appended to the
+  // field name. For example: "foo desc,bar". Redundant space characters in the
+  // syntax are insignificant. "foo,bar desc" and "  foo ,  bar  desc  " are
+  // equivalent.
+  string order_by = 5;
+  View view = 6;
+}
+
+message ListPostsResponse {
+  // The field name should match the noun "Post" in the method name.
+  // There will be a maximum number of items returned based on the page_size
+  // field in the request.
+  repeated Post posts = 1;
+  // Token to retrieve the next page of results, or empty if there are no more
+  // results in the list.
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message GetPostByIdRequest {
+  enum View {
+    VIEW_UNSPECIFIED = 0;
+    BASIC = 1;
+    WITH_EDGES = 2;
+  }
+  // The field will contain name of the resource requested.
+  string id = 1;
+  View view = 2;
+}
+
+message BatchGetPostByIdRequest {
+  enum View {
+    VIEW_UNSPECIFIED = 0;
+    BASIC = 1;
+    WITH_EDGES = 2;
+  }
+  // The field will contain name of the resource requested.
+  repeated string ids = 1;
+  View view = 2;
+}
+
+message BatchPostResponse {
+  repeated Post posts = 1;
+}
+
+message CreatePostRequest {
+  // The parent resource name where the Post is to be created.
+  string parent = 1;
+  // The Post resource to create.
+  // The field name should match the Noun in the method name.
+  Post post = 2;
+}
+
+message BatchCreatePostRequest {
+  // The parent resource name where the Post is to be created.
+  string parent = 1;
+  // The Post resource to create.
+  // The field name should match the Noun in the method name.
+  repeated Post posts = 2;
+}
+
+message UpdatePostRequest {
+  // The Post resource which replaces the resource on the server.
+  Post post = 1;
+  // The update mask applies to the resource. For the `FieldMask` definition,
+  // see
+  // https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message BatchUpdatePostRequest {
+  // The Post resource which replaces the resource on the server.
+  repeated Post posts = 1;
+  // The update mask applies to the resource. For the `FieldMask` definition,
+  // see
+  // https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message DeletePostRequest {
+  // The resource id of the Post to be deleted.
+  int32 id = 1;
+}
+
+message BatchDeletePostRequest {
+  // The resource id of the Post to be deleted.
+  repeated int32 ids = 1;
+}
+
+message PostsAssignWithCategoriesRequest {
+  // The resource id of the Categories to be deleted.
+  int32 post_id = 1;
+  repeated int32 category_ids = 2;
+}
+
+message PostsUnassignWithCategoriesRequest {
+  // The resource id of the Categories to be deleted.
+  int32 post_id = 1;
+  repeated int32 category_ids = 2;
+}
+
+message User {
+  int32 id = 1;
+  string name = 2;
+  repeated Post posts = 3;
+}
+
+message ListUsersRequest {
+  enum View {
+    VIEW_UNSPECIFIED = 0;
+    BASIC = 1;
+    WITH_EDGES = 2;
+  }
+  // The parent resource name, for example, "shelves/shelf1".
+  string parent = 1;
+  // The maximum number of items to return.
+  int32 page_size = 2;
+  // The next_page_token value returned from a previous List request, if any.
+  string page_token = 3;
+  string filter = 4;
+  // The string value should follow SQL syntax: comma separated list of fields.
+  // For example: "foo,bar". The default sorting order is ascending. To specify
+  // descending order for a field, a suffix " desc" should be appended to the
+  // field name. For example: "foo desc,bar". Redundant space characters in the
+  // syntax are insignificant. "foo,bar desc" and "  foo ,  bar  desc  " are
+  // equivalent.
+  string order_by = 5;
+  View view = 6;
+}
+
+message ListUsersResponse {
+  // The field name should match the noun "User" in the method name.
+  // There will be a maximum number of items returned based on the page_size
+  // field in the request.
+  repeated User users = 1;
+  // Token to retrieve the next page of results, or empty if there are no more
+  // results in the list.
+  string next_page_token = 2;
+  int32 total_count = 3;
+}
+
+message GetUserByIdRequest {
+  enum View {
+    VIEW_UNSPECIFIED = 0;
+    BASIC = 1;
+    WITH_EDGES = 2;
+  }
+  // The field will contain name of the resource requested.
+  string id = 1;
+  View view = 2;
+}
+
+message BatchGetUserByIdRequest {
+  enum View {
+    VIEW_UNSPECIFIED = 0;
+    BASIC = 1;
+    WITH_EDGES = 2;
+  }
+  // The field will contain name of the resource requested.
+  repeated string ids = 1;
+  View view = 2;
+}
+
+message BatchUserResponse {
+  repeated User users = 1;
+}
+
+message CreateUserRequest {
+  // The parent resource name where the User is to be created.
+  string parent = 1;
+  // The User resource to create.
+  // The field name should match the Noun in the method name.
+  User user = 2;
+}
+
+message BatchCreateUserRequest {
+  // The parent resource name where the User is to be created.
+  string parent = 1;
+  // The User resource to create.
+  // The field name should match the Noun in the method name.
+  repeated User users = 2;
+}
+
+message UpdateUserRequest {
+  // The User resource which replaces the resource on the server.
+  User user = 1;
+  // The update mask applies to the resource. For the `FieldMask` definition,
+  // see
+  // https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message BatchUpdateUserRequest {
+  // The User resource which replaces the resource on the server.
+  repeated User users = 1;
+  // The update mask applies to the resource. For the `FieldMask` definition,
+  // see
+  // https://developers.google.com/protocol-buffers/docs/reference/google.protobuf#fieldmask
+  google.protobuf.FieldMask update_mask = 2;
+}
+
+message DeleteUserRequest {
+  // The resource id of the User to be deleted.
+  int32 id = 1;
+}
+
+message BatchDeleteUserRequest {
+  // The resource id of the User to be deleted.
+  repeated int32 ids = 1;
+}

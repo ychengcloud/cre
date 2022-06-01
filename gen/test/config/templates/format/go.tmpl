@@ -1,0 +1,14 @@
+package single
+
+{{ $importPkg := .ImportPkg }}
+{{- range .Tables }}
+type {{ pascal .Name }} struct {
+}
+
+
+
+
+    func ({{ receiver $importPkg .Name }} *{{ pascal .Name }}) GetName() string {
+    return "{{.Name}}"
+}
+{{- end }}
