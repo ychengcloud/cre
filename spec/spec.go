@@ -39,7 +39,6 @@ const (
 
 var (
 	opNames = [...]string{
-		Unknown:    "Unknown",
 		Eq:         "Eq",
 		Neq:        "Neq",
 		In:         "In",
@@ -98,14 +97,14 @@ func (r RelType) Name() string {
 	return "Unknown"
 }
 
-func GetRelType(name string) *RelType {
+func GetRelType(name string) RelType {
 	for i, n := range relNames {
 		if strings.ToLower(n) == strings.TrimSpace(strings.ToLower(name)) {
 			relType := RelType(i)
-			return &relType
+			return relType
 		}
 	}
-	return nil
+	return RelTypeNone
 }
 
 type (

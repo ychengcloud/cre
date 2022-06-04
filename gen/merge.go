@@ -7,9 +7,8 @@ import (
 )
 
 // ops returns all operations for given field.
-func getOps(f *spec.Field) (o []spec.Op) {
+func getOps(f *spec.Field) (ops []spec.Op) {
 
-	var ops []spec.Op
 	switch f.Type.(type) {
 	case *spec.BoolType:
 		ops = spec.BoolOps
@@ -28,9 +27,7 @@ func getOps(f *spec.Field) (o []spec.Op) {
 	if f.Optional {
 		ops = append(ops, spec.NullableOps...)
 	}
-	for _, op := range ops {
-		o = append(o, op)
-	}
+
 	return
 }
 
@@ -103,30 +100,83 @@ func refTable(f *spec.Field, refTableName string) (*spec.Table, error) {
 		return &spec.Table{Name: refTableName}, nil
 	}
 
-	refTable := f.Table.Schema.Table(refTableName)
-	if refTable == nil {
+	rt := f.Table.Schema.Table(refTableName)
+	if rt == nil {
 		return nil, fmt.Errorf("mergeRelation/table %s not found", refTableName)
 	}
-	return refTable, nil
+	return rt, nil
 }
 
 func refField(f *spec.Field, refTableName string, refFieldName string) (*spec.Field, error) {
-	if refFieldName == "" {
-		refFieldName = "id"
-	}
 	if f.Remote {
 		rf := &spec.Field{Name: refFieldName}
 		f.Rel.RefTable.AddFields(rf)
+		f.Rel.RefTable.ID = rf
 		return rf, nil
 	}
 
 	f.Rel.RefField = f.Rel.RefTable.GetField(refFieldName)
 	if f.Rel.RefField == nil {
-		return nil, fmt.Errorf("ref field %s not found", refFieldName)
+		return nil, fmt.Errorf("ref field  not found [  table: %s, field: %s, ref field: %s ]", f.Table.Name, f.Name, refFieldName)
 	}
 	return f.Rel.RefField, nil
 }
 
+func defaultRelField(f *spec.Field) string {
+	var name string
+	switch f.Rel.Type {
+	case spec.RelTypeBelongsTo:
+		name = f.Rel.RefTable.Name + "_" + DefaultIDName
+	case spec.RelTypeHasOne, spec.RelTypeHasMany:
+		name = DefaultIDName
+	case spec.RelTypeManyToMany:
+		name = DefaultIDName
+	}
+	return name
+}
+
+func defaultRelRefField(f *spec.Field) string {
+	var name string
+	switch f.Rel.Type {
+	case spec.RelTypeBelongsTo:
+		name = DefaultIDName
+	case spec.RelTypeHasOne, spec.RelTypeHasMany:
+		name = f.Table.Name + "_" + DefaultIDName
+	case spec.RelTypeManyToMany:
+		name = DefaultIDName
+	}
+	return name
+}
+
+func relationField(f *spec.Field, rel *Relation) (*spec.Field, error) {
+	var err error
+	relField := rel.Field
+	relRefField := rel.RefField
+
+	f.Rel.RefTable, err = refTable(f, rel.RefTable)
+	if err != nil {
+		return nil, err
+	}
+
+	if relField == "" {
+		relField = defaultRelField(f)
+	}
+
+	if relRefField == "" {
+		relRefField = defaultRelRefField(f)
+	}
+
+	f.Rel.Field = f.Table.GetField(relField)
+	if f.Rel.Field == nil {
+		return nil, fmt.Errorf("relation not found [  table: %s, field: %s, relation field: %s ]", f.Table.Name, f.Name, relField)
+	}
+
+	f.Rel.RefField, err = refField(f, rel.RefTable, relRefField)
+	if err != nil {
+		return nil, err
+	}
+	return f, nil
+}
 func mergeRelation(f *spec.Field, rel *Relation) (*spec.Field, error) {
 	if rel == nil {
 		return f, nil
@@ -134,29 +184,12 @@ func mergeRelation(f *spec.Field, rel *Relation) (*spec.Field, error) {
 
 	var err error
 	rt := spec.GetRelType(rel.Type)
-	if rt == nil {
-		return nil, fmt.Errorf("unknown relation type: %s", rel.Type)
-	}
-	f.Rel = &spec.Relation{Type: *rt}
 
-	if rel.Field == "" {
-		f.Rel.Field = f.Table.ID
-		if f.Table.ID == nil {
-			return nil, fmt.Errorf("relation field table id %#v not found", f.Table)
-		}
-	} else {
-		f.Rel.Field = f.Table.GetField(rel.Field)
-		if f.Rel.Field == nil {
-			return nil, fmt.Errorf("relation field %s not found", rel.Field)
-		}
+	if f.Remote && (rt != spec.RelTypeBelongsTo && rt != spec.RelTypeManyToMany) {
+		return nil, fmt.Errorf("remote field %s can only be belongs to or many to many", f.Name)
 	}
-
-	f.Rel.RefTable, err = refTable(f, rel.RefTable)
-	if err != nil {
-		return nil, err
-	}
-
-	f.Rel.RefField, err = refField(f, rel.RefTable, rel.RefField)
+	f.Rel = &spec.Relation{Type: rt}
+	f, err = relationField(f, rel)
 	if err != nil {
 		return nil, err
 	}
@@ -172,6 +205,53 @@ func mergeRelation(f *spec.Field, rel *Relation) (*spec.Field, error) {
 		f.Rel.Inverse = rel.Inverse
 	}
 	return f, nil
+}
+
+func mergeType(t Type) spec.Type {
+	if t == "" {
+		return nil
+	}
+
+	switch t {
+	case Binary:
+		return &spec.BinaryType{Name: string(t)}
+	case Bit:
+		return &spec.BitType{Name: string(t)}
+	case Bool:
+		return &spec.BoolType{Name: string(t)}
+	case String:
+		return &spec.StringType{Name: string(t)}
+	case Int8:
+		return &spec.IntegerType{Name: string(t), Size: 8}
+	case Int16:
+		return &spec.IntegerType{Name: string(t), Size: 16}
+	case Int32:
+		return &spec.IntegerType{Name: string(t), Size: 32}
+	case Int64:
+		return &spec.IntegerType{Name: string(t), Size: 64}
+	case Uint8:
+		return &spec.IntegerType{Name: string(t), Size: 8, Unsigned: true}
+	case Uint16:
+		return &spec.IntegerType{Name: string(t), Size: 16, Unsigned: true}
+	case Uint32:
+		return &spec.IntegerType{Name: string(t), Size: 32, Unsigned: true}
+	case Uint64:
+		return &spec.IntegerType{Name: string(t), Size: 64, Unsigned: true}
+	case Float32:
+		return &spec.FloatType{Name: string(t), Precision: 24}
+	case Float64:
+		return &spec.FloatType{Name: string(t), Precision: 32}
+	case Time:
+		return &spec.TimeType{Name: string(t)}
+	case JSON:
+		return &spec.JSONType{Name: string(t)}
+	case UUID:
+		return &spec.UUIDType{Name: string(t), Version: "v4"}
+	case Enum:
+		return &spec.EnumType{Name: string(t)}
+	default:
+		return nil
+	}
 }
 
 func mergeField(f *spec.Field, fc *Field) (*spec.Field, error) {
@@ -204,6 +284,13 @@ func mergeField(f *spec.Field, fc *Field) (*spec.Field, error) {
 	}
 
 	f.Remote = fc.Remote
+
+	if fc.Type != "" {
+		f.Type = mergeType(fc.Type)
+		if f.Type == nil {
+			return nil, fmt.Errorf("unknown field type in config: %s", fc.Type)
+		}
+	}
 
 	f, err := mergeOps(f, fc.Operations)
 	if err != nil {

@@ -120,13 +120,13 @@ func testMainWrapper(m *testing.M) int {
 	}...)
 
 	pgFK1Table.AddFields([]*spec.Field{
-		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true},
+		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
 		{Name: "fkid", Type: &spec.IntegerType{Name: "bigint", Size: 64}, ForeignKey: true},
 	}...)
 	pgFK1Table.ID = pgFK1Table.GetField("id")
 
 	pgFK2Table.AddFields([]*spec.Field{
-		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true},
+		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
 	}...)
 	pgFK2Table.ID = pgFK2Table.GetField("id")
 
@@ -142,7 +142,7 @@ func testMainWrapper(m *testing.M) int {
 	mysqlExpected.AddTables(mysqlNumericTable, mysqlStringTable, mysqlTimeTable, mysqlSpatialTable, mysqlFK1Table, mysqlFK2Table)
 
 	mysqlNumericTable.AddFields([]*spec.Field{
-		{Name: "bigint", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, Comment: "bigint comment", PrimaryKey: true, Unique: true},
+		{Name: "bigint", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, Comment: "bigint comment", PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
 		{Name: "bigint1", Type: &spec.IntegerType{Name: "bigint", Size: 64}},
 		{Name: "bit", Type: &spec.BitType{Name: "bit", Len: 1}},
 		{Name: "int", Type: &spec.IntegerType{Name: "int", Size: 32}},
@@ -200,13 +200,13 @@ func testMainWrapper(m *testing.M) int {
 	}...)
 
 	mysqlFK1Table.AddFields([]*spec.Field{
-		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true},
+		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
 		{Name: "fkid", Type: &spec.IntegerType{Name: "bigint", Size: 64}, ForeignKey: true},
 	}...)
 	mysqlFK1Table.ID = mysqlFK1Table.GetField("id")
 
 	mysqlFK2Table.AddFields([]*spec.Field{
-		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true},
+		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
 	}...)
 	mysqlFK2Table.ID = mysqlFK2Table.GetField("id")
 

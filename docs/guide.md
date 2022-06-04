@@ -5,7 +5,7 @@
 | 名称      | 说明                          | 类型   | 默认值 | 例子                                                |
 | --------- | ----------------------------- | ------ | ------ | --------------------------------------------------- |
 | project   | 项目名                        | string | -      | blog                                                |
-| package   | 项目包名                      | string | -      | github.com/ychengcloud/cre/examples/blog"                |
+| package   | 项目包名                      | string | -      | github.com/ychengcloud/cre/examples/blog"           |
 | dsn       | 项目名                        | string | -      | mysql://root:@tcp(127.0.0.1:3306)/blog?charset=utf8 |
 | root      | 模板根路径,相对于当前路径     | string | -      | path                                                |
 | genRoot   | 模板生成根路径,相对于当前路径 | string | -      | path                                                |
@@ -34,17 +34,18 @@
 
 - 字段配置项 : field:
 
-| 名称       | 说明               | 类型   | 默认值 | 例子                      |
-| ---------- | ------------------ | ------ | ------ | ------------------------- |
-| name       | 字段名             | string | -      | id                        |
-| alias      | 别名               | string | -      | nameAlias                 |
-| skip       | 是否忽略此字段     | bool   | false  | true                      |
-| required   | 是否必填字段       | bool   | false  | true                      |
-| sortable   | 是否可按此字段排序 | bool   | false  | true                      |
-| filterable | 是否可按此字段过滤 | bool   | false  | true                      |
-| operations | 排序时的可用操作   | array  | -      | true                      |
-| tags       | 扩展 struct tags   | string | ""     | binding:"required,max=64" |
-| relation   | 关联配置项         | object | -      | -                         |
+| 名称       | 说明                                                    | 类型   | 默认值 | 例子                      |
+| ---------- | ------------------------------------------------------- | ------ | ------ | ------------------------- |
+| name       | 字段名                                                  | string | -      | id                        |
+| type       | 覆写字段类型, 典型场景: mysql 中 tinyint(1) 配置为 bool | string | -      | bool                      |
+| alias      | 别名                                                    | string | -      | nameAlias                 |
+| skip       | 是否忽略此字段                                          | bool   | false  | true                      |
+| required   | 是否必填字段                                            | bool   | false  | true                      |
+| sortable   | 是否可按此字段排序                                      | bool   | false  | true                      |
+| filterable | 是否可按此字段过滤                                      | bool   | false  | true                      |
+| operations | 排序时的可用操作                                        | array  | -      | true                      |
+| tags       | 扩展 struct tags                                        | string | ""     | binding:"required,max=64" |
+| relation   | 关联配置项                                              | object | -      | -                         |
 
 
 关联配置项: relation

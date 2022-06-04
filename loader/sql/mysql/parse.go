@@ -45,9 +45,7 @@ func parseTypeAttrs(colDef string) (colType string, ext []string, attrs []string
 
 // parseInteger parses the integer column type from the column definition.
 func parseInteger(colType string, ext []string, attrs []string) (spec.Type, error) {
-	t := &spec.IntegerType{
-		Name: colType,
-	}
+	t := &spec.IntegerType{Name: colType}
 
 	for _, attr := range attrs {
 		if strings.Contains(attr, "unsigned") {

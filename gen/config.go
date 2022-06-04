@@ -1,6 +1,10 @@
 package gen
 
 const (
+	DefaultIDName = "id"
+)
+
+const (
 	LoaderMysql    = "mysql"
 	LoaderPostgres = "postgres"
 )
@@ -8,6 +12,29 @@ const (
 const (
 	TplModeSingle = "single"
 	TplModeMulti  = "multi"
+)
+
+type Type string
+
+const (
+	Bool    Type = "bool"
+	Binary       = "binary"
+	Bit          = "bit"
+	Int8         = "int8"
+	Uint8        = "uint8"
+	Int16        = "int16"
+	Uint16       = "uint16"
+	Int32        = "int32"
+	Uint32       = "uint32"
+	Int64        = "int64"
+	Uint64       = "uint64"
+	Float32      = "float32"
+	Float64      = "float64"
+	String       = "string"
+	Time         = "time"
+	Enum         = "enum"
+	UUID         = "uuid"
+	JSON         = "json"
 )
 
 type Config struct {
@@ -49,6 +76,7 @@ type Table struct {
 
 type Field struct {
 	Name       string    `yaml:"name"`
+	Type       Type      `yaml:"type"` // 指定字段类型，优先级高于数据库定义
 	Nullable   bool      `yaml:"nullable"`
 	Optional   bool      `yaml:"optional"`
 	Comment    string    `yaml:"comment"`

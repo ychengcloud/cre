@@ -51,6 +51,10 @@ func (c *Column) convert() (*spec.Field, error) {
 	convertIndexes(c, field)
 	convertForeignKeys(c, field)
 
+	if field.PrimaryKey {
+		field.Filterable = true
+		field.Sortable = true
+	}
 	return field, nil
 }
 

@@ -78,6 +78,8 @@ func TestConvert(t *testing.T) {
 						Comment:    "c1 comment",
 						PrimaryKey: true,
 						Unique:     true,
+						Filterable: true,
+						Sortable:   true,
 					},
 					{
 						Name:     "c2",
@@ -176,6 +178,8 @@ func TestConvert(t *testing.T) {
 						Nullable:   true,
 						Comment:    "c2 comment",
 						PrimaryKey: true,
+						Filterable: true,
+						Sortable:   true,
 					},
 				}
 

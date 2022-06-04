@@ -4,6 +4,7 @@ import "reflect"
 
 // Type represents a field type definition.
 type Type interface {
+	GetName() string
 	Kind() string
 	ProtobufKind() string
 }
@@ -18,6 +19,7 @@ var _ Type = (*TimeType)(nil)
 var _ Type = (*SpatialType)(nil)
 var _ Type = (*JSONType)(nil)
 var _ Type = (*ObjectType)(nil)
+var _ Type = (*UUIDType)(nil)
 
 type BinaryType struct {
 	Name string
@@ -59,6 +61,11 @@ type EnumType struct {
 	Values []string
 }
 
+type UUIDType struct {
+	Name    string
+	Version string
+}
+
 type TimeType struct {
 	Name string
 	Size int
@@ -75,6 +82,47 @@ type JSONType struct {
 type ObjectType struct {
 	Name     string
 	Exported bool
+}
+
+func (b *BinaryType) GetName() string {
+	return b.Name
+}
+func (b *BitType) GetName() string {
+	return b.Name
+}
+func (b *BoolType) GetName() string {
+	return b.Name
+}
+
+func (i *IntegerType) GetName() string {
+	return i.Name
+}
+
+func (f *FloatType) GetName() string {
+	return f.Name
+}
+func (s *StringType) GetName() string {
+	return s.Name
+}
+func (e *EnumType) GetName() string {
+	return e.Name
+}
+func (t *TimeType) GetName() string {
+	return t.Name
+}
+func (s *SpatialType) GetName() string {
+	return s.Name
+}
+func (j *JSONType) GetName() string {
+	return j.Name
+}
+
+func (o *ObjectType) GetName() string {
+	return o.Name
+}
+
+func (o *UUIDType) GetName() string {
+	return o.Name
 }
 
 func (*BinaryType) Kind() string {
@@ -133,6 +181,11 @@ func (*EnumType) Kind() string {
 func (*TimeType) Kind() string {
 	return "time.Time"
 }
+
+func (*UUIDType) Kind() string {
+	return "uuid"
+}
+
 func (s *SpatialType) Kind() string {
 	return s.Name
 }
@@ -199,4 +252,8 @@ func (*JSONType) ProtobufKind() string {
 
 func (o *ObjectType) ProtobufKind() string {
 	return o.Name
+}
+
+func (*UUIDType) ProtobufKind() string {
+	return "uuid"
 }

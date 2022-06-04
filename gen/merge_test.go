@@ -1,6 +1,8 @@
 package gen
 
 import (
+	"fmt"
+	"os"
 	"testing"
 
 	"github.com/stretchr/testify/require"
@@ -8,124 +10,88 @@ import (
 	"github.com/ychengcloud/cre/spec"
 )
 
+var (
+
+	// Post { id, user_id, reluser }
+	postIDField = &spec.Field{
+		Name:       "id",
+		Type:       &spec.IntegerType{Name: "int", Size: 32},
+		PrimaryKey: true,
+		Unique:     true,
+	}
+	postNameField = &spec.Field{
+		Name: "name",
+		Type: &spec.StringType{Name: "char", Size: 64},
+	}
+	postSkipField = &spec.Field{Name: "skip"}
+
+	postUserIDField = &spec.Field{Name: "user_id", Type: &spec.IntegerType{Name: "int", Size: 32}}
+
+	postRelUserField       = &spec.Field{Name: "reluser", Type: &spec.ObjectType{Name: "reluser"}}
+	postRelCategoriesField = &spec.Field{Name: "relcategories", Type: &spec.ObjectType{Name: "relcategories"}}
+	postRelRemoteIDField   = &spec.Field{Name: "remote_id", Type: &spec.IntegerType{Name: "int", Size: 32}}
+	postRelRemoteField     = &spec.Field{Name: "relremote", Type: &spec.ObjectType{Name: "relremote"}, Remote: true}
+
+	postTable = &spec.Table{Name: "post"}
+
+	// Category { id }
+	categoryIDField = &spec.Field{
+		Name:       "id",
+		Type:       &spec.IntegerType{Name: "int", Size: 32},
+		PrimaryKey: true,
+		Unique:     true,
+	}
+
+	categoryTable = &spec.Table{Name: "category"}
+
+	// PostCategory { id, post_id, category_id }
+	postCategoryIDField = &spec.Field{
+		Name:       "id",
+		Type:       &spec.IntegerType{Name: "int", Size: 32},
+		PrimaryKey: true,
+		Unique:     true,
+	}
+	postCategoryPostIDField     = &spec.Field{Name: "post_id", Type: &spec.IntegerType{Name: "int", Size: 32}}
+	postCategoryCategoryIDField = &spec.Field{Name: "category_id", Type: &spec.IntegerType{Name: "int", Size: 32}}
+
+	postCategoryTable = &spec.Table{Name: "post_category"}
+
+	// User { id }
+	userIDField          = &spec.Field{Name: "id", Type: &spec.IntegerType{Name: "int", Size: 32}, PrimaryKey: true, Unique: true}
+	userRelOnePostField  = &spec.Field{Name: "relonepost", Type: &spec.ObjectType{Name: "relonepost"}}
+	UserRelManyPostField = &spec.Field{Name: "relmanyposts", Type: &spec.ObjectType{Name: "relmanyposts"}}
+	userTable            = &spec.Table{Name: "user"}
+
+	skipTable = &spec.Table{Name: "skip"}
+
+	// Remote { id }
+	remoteIDField = &spec.Field{Name: "id"}
+
+	remoteTable = &spec.Table{Name: "remote"}
+)
+
+func setup() {
+	postTable.AddFields(postIDField, postNameField, postSkipField, postUserIDField, postRelUserField, postRelCategoriesField, postRelRemoteIDField, postRelRemoteField)
+	categoryTable.AddFields(categoryIDField)
+	categoryTable.ID = categoryTable.GetField("id")
+	postCategoryTable.AddFields(postCategoryIDField, postCategoryPostIDField, postCategoryCategoryIDField)
+	userTable.AddFields(userIDField, userRelOnePostField)
+
+	remoteTable.AddFields(remoteIDField)
+	remoteTable.ID = remoteIDField
+
+}
+func TestMain(m *testing.M) {
+	setup()
+	os.Exit(m.Run())
+}
+
 func TestMergeSchema(t *testing.T) {
 	schema := &spec.Schema{
 		Name: "test",
 	}
-
-	categoryTable := &spec.Table{Name: "category"}
-	postTable := &spec.Table{Name: "post"}
-	skipTable := &spec.Table{Name: "skip"}
-	postCategoryTable := &spec.Table{Name: "post_category"}
-	userTable := &spec.Table{Name: "user"}
-	remoteTable := &spec.Table{Name: "remote"}
-	categoryTable.AddFields([]*spec.Field{
-		{
-			Name:       "id",
-			Type:       &spec.IntegerType{Name: "int", Size: 32},
-			PrimaryKey: true,
-			Unique:     true,
-		},
-		{
-			Name: "name",
-			Type: &spec.StringType{Name: "char", Size: 64},
-		},
-	}...)
-
-	categoryTable.ID = categoryTable.GetField("id")
-
-	postTable.AddFields([]*spec.Field{
-		{
-			Name:       "id",
-			Type:       &spec.IntegerType{Name: "int", Size: 32},
-			PrimaryKey: true,
-			Unique:     true,
-		},
-		{
-			Name: "name",
-			Type: &spec.StringType{Name: "char", Size: 64},
-		},
-		{Name: "skip"},
-	}...)
-
-	postCategoryTable.AddFields([]*spec.Field{
-		{
-			Name:       "id",
-			Type:       &spec.IntegerType{Name: "int", Size: 32},
-			PrimaryKey: true,
-			Unique:     true,
-		},
-		{
-			Name: "post_id",
-			Type: &spec.IntegerType{Name: "int", Size: 32},
-		},
-		{
-			Name: "category_id",
-			Type: &spec.IntegerType{Name: "int", Size: 32},
-		},
-	}...)
-
-	userTable.AddFields([]*spec.Field{
-		{
-			Name:       "id",
-			Type:       &spec.IntegerType{Name: "int", Size: 32},
-			PrimaryKey: true,
-			Unique:     true,
-		},
-		{
-			Name: "name",
-			Type: &spec.StringType{Name: "char", Size: 64},
-		},
-	}...)
-
-	remoteTable.AddFields([]*spec.Field{
-		{
-			Name: "id",
-		},
-	}...)
-
-	expectedPostRelField := &spec.Field{
-		Name: "categories",
-		Type: &spec.ObjectType{Name: "categories"},
-		Rel: &spec.Relation{
-			Type:     spec.RelTypeManyToMany,
-			Field:    postTable.Fields()[0],
-			RefTable: categoryTable,
-			RefField: categoryTable.Fields()[0],
-			JoinTable: &spec.JoinTable{
-				Name:         "post_category",
-				JoinField:    postCategoryTable.Fields()[1],
-				JoinRefField: postCategoryTable.Fields()[2],
-			},
-			Inverse: true,
-		},
-		Table: postTable,
-	}
-	expectedPostBelongsToField := &spec.Field{
-		Name: "belongsto",
-		Type: &spec.ObjectType{Name: "belongsto"},
-		Rel: &spec.Relation{
-			Type:     spec.RelTypeBelongsTo,
-			Field:    postTable.Fields()[0],
-			RefTable: userTable,
-			RefField: userTable.Fields()[0],
-		},
-		Table: postTable,
-	}
-
-	expectedRemoteField := &spec.Field{
-		Name:   "remote",
-		Remote: true,
-		Type:   &spec.ObjectType{Name: "remote"},
-		Rel: &spec.Relation{
-			Type:     spec.RelTypeBelongsTo,
-			Field:    postTable.Fields()[0],
-			RefTable: remoteTable,
-			RefField: remoteTable.Fields()[0],
-		},
-		Table: postTable,
-	}
-	schema.AddTables(categoryTable, postTable, skipTable, postCategoryTable, userTable)
+	// remote table don't add to schema
+	schema.AddTables(categoryTable, postTable, userTable, skipTable)
 
 	tablesInCfg := []*Table{
 		{
@@ -153,40 +119,6 @@ func TestMergeSchema(t *testing.T) {
 					Operations: []string{"EQ", "In"},
 				},
 				{Name: "skip", Skip: true},
-				{Name: "pid", Relation: &Relation{Type: "hasOne", RefTable: "post", RefField: "id"}},
-				{Name: "cid", Relation: &Relation{Type: "hasOne", RefTable: "category", RefField: "id", Inverse: true}},
-				{
-					Name: "categories",
-					Relation: &Relation{
-						Type:     "manyToMany",
-						RefTable: "category",
-						RefField: "id",
-						JoinTable: &JoinTable{
-							Name:     "post_category",
-							Table:    "post",
-							RefTable: "category",
-							Field:    "post_id",
-							RefField: "category_id",
-						},
-						Inverse: true,
-					},
-				},
-				{
-					Name: "belongsto",
-					Relation: &Relation{
-						Type:     "BelongsTo",
-						RefTable: "user",
-					},
-				},
-				{
-					Name:   "remote",
-					Remote: true,
-					Relation: &Relation{
-						Type:     "BelongsTo",
-						RefTable: "remote",
-						RefField: "id",
-					},
-				},
 			},
 		},
 		{
@@ -200,58 +132,230 @@ func TestMergeSchema(t *testing.T) {
 	r := require.New(t)
 	r.NoError(err)
 	r.NotNil(s)
+	fmt.Printf("%#v\n", s.Tables())
 	// Check skip condition
 	r.Equal(3, len(s.Tables()))
-	r.Equal(1, len(s.JoinTables()))
+	r.Equal(0, len(s.JoinTables()))
 	r.Equal("category", s.Tables()[0].Name)
 	r.Equal("post", s.Tables()[1].Name)
 
 	category := s.Tables()[0]
-	r.EqualValues(category.ID, category.Fields()[0])
+	matchField(t, category.ID, categoryTable.ID)
 
-	post := s.Tables()[1]
-	postFields := post.Fields()
+	post := s.Table("post")
+	actualPostIDField := post.GetField("id")
+	actualPostNameField := post.GetField("name")
 	// Check skip condition
-	r.Equal(len(tablesInCfg[1].Fields)-1, len(postFields))
+	skipField := post.GetField("skip")
+	r.Nil(skipField)
 
-	r.Equal(true, postFields[1].Nullable)
-	r.Equal(true, postFields[1].Optional)
-	r.Equal("post name", postFields[1].Comment)
-	r.Equal("postAlias", postFields[1].Alias)
-	r.Equal(true, postFields[1].Sortable)
-	r.Equal(true, postFields[1].Filterable)
-	r.Equal(len(spec.NumericOps), len(postFields[0].Ops))
-	r.Equal(spec.Eq, postFields[0].Ops[0])
-	r.Equal(2, len(postFields[1].Ops))
-	r.Equal(spec.Eq, postFields[1].Ops[0])
-	r.Equal(spec.In, postFields[1].Ops[1])
-	r.Equal("HasOne", postFields[3].Rel.Type.Name())
-	r.EqualValues(post, postFields[2].Rel.RefTable)
-	r.EqualValues(category, postFields[3].Rel.RefTable)
-	r.EqualValues(post.Fields()[0], postFields[2].Rel.RefField)
-	r.EqualValues(category.Fields()[0], postFields[3].Rel.RefField)
+	expectedIDField := &spec.Field{
+		Name:       "id",
+		Type:       &spec.IntegerType{Name: "int", Size: 32},
+		PrimaryKey: true,
+		Unique:     true,
+		Ops:        spec.NumericOps,
+	}
+	expectedNameField := &spec.Field{
+		Name:       "name",
+		Type:       &spec.StringType{Name: "char", Size: 64},
+		Nullable:   true,
+		Optional:   true,
+		Comment:    "post name",
+		Alias:      "postAlias",
+		Sortable:   true,
+		Filterable: true,
+		Ops:        []spec.Op{spec.Eq, spec.In},
+	}
+	matchField(t, expectedIDField, actualPostIDField)
+	matchField(t, expectedNameField, actualPostNameField)
+}
 
-	// post category relation
-	postCategoryField := postFields[4]
-	joinTable := s.JoinTables()[0]
-	r.NotNil(postCategoryField.Rel)
-	r.EqualValues(expectedPostRelField, postCategoryField)
-	r.NotNil(postCategoryField.Rel.JoinTable)
-	r.EqualValues(category, postCategoryField.Rel.RefTable)
-	r.Equal(joinTable.Name, postCategoryField.Rel.JoinTable.Name)
-	r.Equal("post_id", postCategoryField.Rel.JoinTable.JoinField.Name)
-	r.Equal("category_id", postCategoryField.Rel.JoinTable.JoinRefField.Name)
-	r.EqualValues(true, postCategoryField.Rel.Inverse)
+func TestRelation(t *testing.T) {
 
-	// post belongsto relation
-	belongsToField := postFields[5]
-	r.NotNil(belongsToField.Rel)
-	r.EqualValues(expectedPostBelongsToField, belongsToField)
+}
 
-	// post user relation
-	remoteField := postFields[6]
-	r.NotNil(remoteField.Rel)
-	r.EqualValues(expectedRemoteField, remoteField)
+func matchField(t *testing.T, expected *spec.Field, actual *spec.Field) {
+	r := require.New(t)
+	r.NotNil(expected)
+	r.NotNil(actual)
+	r.Equal(expected.Name, actual.Name)
+	r.EqualValues(expected.Type, actual.Type)
+	r.Equal(expected.PrimaryKey, actual.PrimaryKey)
+	r.Equal(expected.Unique, actual.Unique)
+	r.Equal(expected.Nullable, actual.Nullable)
+	r.Equal(expected.Optional, actual.Optional)
+	r.Equal(expected.Comment, actual.Comment)
+	r.Equal(expected.Alias, actual.Alias)
+	r.Equal(expected.Sortable, actual.Sortable)
+	r.Equal(expected.Filterable, actual.Filterable)
+	r.Equal(len(expected.Ops), len(actual.Ops))
+	for i := range expected.Ops {
+		r.Equal(expected.Ops[i], actual.Ops[i])
+	}
+
+}
+
+func matchRelation(t *testing.T, expected *spec.Relation, actual *spec.Relation) {
+	r := require.New(t)
+	r.NotNil(expected)
+	r.NotNil(actual)
+	r.EqualValues(expected.Field, actual.Field)
+	r.EqualValues(expected.RefTable, actual.RefTable)
+	r.EqualValues(expected.RefField, actual.RefField)
+	r.EqualValues(expected.JoinTable, actual.JoinTable)
+	r.EqualValues(expected.Attrs, actual.Attrs)
+
+}
+
+func TestRelationBelongsTo(t *testing.T) {
+	schema := &spec.Schema{
+		Name: "test",
+	}
+	// remote table don't add to schema
+	schema.AddTables(postTable, userTable)
+
+	r := require.New(t)
+
+	expected := &spec.Relation{
+		Type:     spec.RelTypeBelongsTo,
+		Field:    postUserIDField,
+		RefTable: userTable,
+		RefField: userIDField,
+	}
+
+	actual, err := mergeRelation(postRelUserField, &Relation{Type: "BelongsTo", RefTable: "user"})
+	r.NoError(err)
+	matchRelation(t, expected, actual.Rel)
+
+}
+
+func TestRelationHasOne(t *testing.T) {
+	schema := &spec.Schema{
+		Name: "test",
+	}
+	schema.AddTables(postTable, userTable)
+
+	r := require.New(t)
+
+	expected := &spec.Relation{
+		Type:     spec.RelTypeHasOne,
+		Field:    userIDField,
+		RefTable: postTable,
+		RefField: postUserIDField,
+	}
+
+	actual, err := mergeRelation(userRelOnePostField, &Relation{Type: "HasOne", RefTable: "post"})
+	r.NoError(err)
+	matchRelation(t, expected, actual.Rel)
+
+}
+
+func TestRelationHasMany(t *testing.T) {
+	schema := &spec.Schema{
+		Name: "test",
+	}
+	schema.AddTables(postTable, userTable)
+
+	r := require.New(t)
+
+	expected := &spec.Relation{
+		Type:     spec.RelTypeHasOne,
+		Field:    userIDField,
+		RefTable: postTable,
+		RefField: postUserIDField,
+	}
+
+	actual, err := mergeRelation(userRelOnePostField, &Relation{Type: "HasMany", RefTable: "post"})
+	r.NoError(err)
+	matchRelation(t, expected, actual.Rel)
+
+}
+
+func TestRelationManyToMany(t *testing.T) {
+	schema := &spec.Schema{
+		Name: "test",
+	}
+	schema.AddTables(categoryTable, postTable, userTable, skipTable, postCategoryTable)
+
+	r := require.New(t)
+
+	expected := &spec.Relation{
+		Type:     spec.RelTypeManyToMany,
+		Field:    postIDField,
+		RefTable: categoryTable,
+		RefField: categoryIDField,
+		JoinTable: &spec.JoinTable{
+			Name:         "post_category",
+			JoinField:    postCategoryPostIDField,
+			JoinRefField: postCategoryCategoryIDField,
+		},
+		Inverse: true,
+	}
+
+	actual, err := mergeRelation(postRelCategoriesField, &Relation{
+		Type:     "manyToMany",
+		RefTable: "category",
+		RefField: "id",
+		JoinTable: &JoinTable{
+			Name:     "post_category",
+			Table:    "post",
+			RefTable: "category",
+		},
+		Inverse: true,
+	})
+	r.NoError(err)
+	matchRelation(t, expected, actual.Rel)
+
+	actual, err = mergeRelation(postRelCategoriesField, &Relation{
+		Type:     "manyToMany",
+		RefTable: "category",
+		RefField: "id",
+		JoinTable: &JoinTable{
+			Name:     "post_category",
+			Table:    "post",
+			Field:    "post_id",
+			RefTable: "category",
+			RefField: "category_id",
+		},
+		Inverse: true,
+	})
+	r.NoError(err)
+	matchRelation(t, expected, actual.Rel)
+
+}
+
+func TestRelationRemote(t *testing.T) {
+	r := require.New(t)
+
+	expected := &spec.Relation{
+		Type:     spec.RelTypeBelongsTo,
+		Field:    postRelRemoteIDField,
+		RefTable: remoteTable,
+		RefField: remoteIDField,
+	}
+
+	actual, err := mergeRelation(postRelRemoteField, &Relation{
+		Type:     "BelongsTo",
+		RefTable: "remote",
+		RefField: "id",
+	})
+	r.NoError(err)
+	matchRelation(t, expected, actual.Rel)
+
+	actual, err = mergeRelation(postRelRemoteField, &Relation{
+		Type:     "HasOne",
+		RefTable: "remote",
+		RefField: "id",
+	})
+	r.Error(err)
+
+	actual, err = mergeRelation(postRelRemoteField, &Relation{
+		Type:     "HasMany",
+		RefTable: "remote",
+		RefField: "id",
+	})
+	r.Error(err)
 }
 
 func TestGetOps(t *testing.T) {
@@ -269,15 +373,173 @@ func TestGetOps(t *testing.T) {
 	ops := getOps(id)
 	r := require.New(t)
 	r.Equal(len(spec.NumericOps), len(ops))
-	r.Equal(spec.Eq, ops[0])
-	r.Equal(spec.Neq, ops[1])
-	r.Equal(spec.In, ops[2])
-	r.Equal(spec.NotIn, ops[3])
-	r.Equal(spec.Gt, ops[4])
-	r.Equal(spec.Gte, ops[5])
-	r.Equal(spec.Lt, ops[6])
-	r.Equal(spec.Lte, ops[7])
+	r.Equal(spec.Eq, ops[spec.Eq-1])
+	r.Equal(spec.Neq, ops[spec.Neq-1])
+	r.Equal(spec.In, ops[spec.In-1])
+	r.Equal(spec.NotIn, ops[spec.NotIn-1])
+	r.Equal(spec.Gt, ops[spec.Gt-1])
+	r.Equal(spec.Gte, ops[spec.Gte-1])
+	r.Equal(spec.Lt, ops[spec.Lt-1])
+	r.Equal(spec.Lte, ops[spec.Lte-1])
 
 	ops = getOps(name)
 	r.Equal(len(spec.StringOps), len(ops))
+}
+
+func TestMergeType(t *testing.T) {
+	tests := []struct {
+		name     string
+		expected spec.Type
+		input    Type
+	}{
+
+		{
+			name:  "bool",
+			input: "bool",
+			expected: &spec.BoolType{
+				Name: "bool",
+			},
+		},
+		{
+			name:  "binary",
+			input: "binary",
+			expected: &spec.BinaryType{
+				Name: "binary",
+			},
+		},
+		{
+			name:  "bit",
+			input: "bit",
+			expected: &spec.BitType{
+				Name: "bit",
+			},
+		},
+		{
+			name:  "int8",
+			input: "int8",
+			expected: &spec.IntegerType{
+				Name: "int8",
+				Size: 8,
+			},
+		},
+		{
+			name:  "int16",
+			input: "int16",
+			expected: &spec.IntegerType{
+				Name: "int16",
+				Size: 16,
+			},
+		},
+		{
+			name:  "int32",
+			input: "int32",
+			expected: &spec.IntegerType{
+				Name: "int32",
+				Size: 32,
+			},
+		},
+		{
+			name:  "int64",
+			input: "int64",
+			expected: &spec.IntegerType{
+				Name: "int64",
+				Size: 64,
+			},
+		},
+		{
+			name:  "uint8",
+			input: "uint8",
+			expected: &spec.IntegerType{
+				Name:     "uint8",
+				Size:     8,
+				Unsigned: true,
+			},
+		},
+		{
+			name:  "uint16",
+			input: "uint16",
+			expected: &spec.IntegerType{
+				Name:     "uint16",
+				Size:     16,
+				Unsigned: true,
+			},
+		},
+		{
+			name:  "uint32",
+			input: "uint32",
+			expected: &spec.IntegerType{
+				Name:     "uint32",
+				Size:     32,
+				Unsigned: true,
+			},
+		},
+		{
+			name:  "uint64",
+			input: "uint64",
+			expected: &spec.IntegerType{
+				Name:     "uint64",
+				Size:     64,
+				Unsigned: true,
+			},
+		},
+		{
+			name:  "float32",
+			input: "float32",
+			expected: &spec.FloatType{
+				Name:      "float32",
+				Precision: 24,
+			},
+		},
+		{
+			name:  "float64",
+			input: "float64",
+			expected: &spec.FloatType{
+				Name:      "float64",
+				Precision: 32,
+			},
+		},
+		{
+			name:  "string",
+			input: "string",
+			expected: &spec.StringType{
+				Name: "string",
+			},
+		},
+		{
+			name:  "time",
+			input: "time",
+			expected: &spec.TimeType{
+				Name: "time",
+			},
+		},
+		{
+			name:  "enum",
+			input: "enum",
+			expected: &spec.EnumType{
+				Name: "enum",
+			},
+		},
+		{
+			name:  "uuid",
+			input: "uuid",
+			expected: &spec.UUIDType{
+				Name:    "uuid",
+				Version: "v4",
+			},
+		},
+		{
+			name:  "json",
+			input: "json",
+			expected: &spec.JSONType{
+				Name: "json",
+			},
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			r := require.New(t)
+			r.Equal(test.expected, mergeType(test.input))
+		})
+	}
 }
