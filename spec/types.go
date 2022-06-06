@@ -190,7 +190,7 @@ func (s *SpatialType) Kind() string {
 	return s.Name
 }
 func (*JSONType) Kind() string {
-	return "json"
+	return "[]byte"
 }
 
 func (o *ObjectType) Kind() string {
@@ -247,7 +247,7 @@ func (s *SpatialType) ProtobufKind() string {
 	return s.Name
 }
 func (*JSONType) ProtobufKind() string {
-	return "json"
+	return "bytes"
 }
 
 func (o *ObjectType) ProtobufKind() string {

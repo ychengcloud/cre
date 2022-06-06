@@ -178,6 +178,132 @@ type (
 	}
 )
 
+type (
+	// FieldBuilder represents a field builder.
+	FieldBuilder struct {
+		field *Field
+	}
+)
+
+func Builder(name string) *FieldBuilder {
+	f := &Field{Name: name}
+	f.Ops = defaultOps(f.Type, f.Optional)
+	return &FieldBuilder{field: f}
+}
+
+func (fb *FieldBuilder) Type(t Type) *FieldBuilder {
+	fb.field.Type = t
+	fb.field.Ops = defaultOps(t, fb.field.Optional)
+	return fb
+}
+
+func (fb *FieldBuilder) Nullable(nullable bool) *FieldBuilder {
+	fb.field.Nullable = nullable
+	return fb
+}
+
+func (fb *FieldBuilder) Optional(optional bool) *FieldBuilder {
+	fb.field.Optional = optional
+	fb.field.Ops = defaultOps(fb.field.Type, fb.field.Optional)
+	return fb
+}
+
+func (fb *FieldBuilder) Sensitive(sensitive bool) *FieldBuilder {
+	fb.field.Sensitive = sensitive
+	return fb
+}
+
+func (fb *FieldBuilder) Tag(tag string) *FieldBuilder {
+	fb.field.Tag = tag
+	return fb
+}
+
+func (fb *FieldBuilder) Comment(comment string) *FieldBuilder {
+	fb.field.Comment = comment
+	return fb
+}
+
+func (fb *FieldBuilder) Alias(alias string) *FieldBuilder {
+	fb.field.Alias = alias
+	return fb
+}
+
+func (fb *FieldBuilder) Sortable(sortable bool) *FieldBuilder {
+	fb.field.Sortable = sortable
+	return fb
+}
+
+func (fb *FieldBuilder) Filterable(filterable bool) *FieldBuilder {
+	fb.field.Filterable = filterable
+	return fb
+}
+
+func (fb *FieldBuilder) ForeignKey(foreignKey bool) *FieldBuilder {
+	fb.field.ForeignKey = foreignKey
+	return fb
+}
+
+func (fb *FieldBuilder) PrimaryKey(primaryKey bool) *FieldBuilder {
+	fb.field.PrimaryKey = primaryKey
+	if primaryKey {
+		fb.field.Filterable = true
+		fb.field.Sortable = true
+	}
+	return fb
+}
+
+func (fb *FieldBuilder) Index(index bool) *FieldBuilder {
+	fb.field.Index = index
+	if index {
+		fb.field.Filterable = true
+	}
+	return fb
+}
+
+func (fb *FieldBuilder) Unique(unique bool) *FieldBuilder {
+	fb.field.Unique = unique
+	return fb
+}
+
+func (fb *FieldBuilder) AutoIncrement(autoIncrement bool) *FieldBuilder {
+	fb.field.AutoIncrement = autoIncrement
+	return fb
+}
+
+func (fb *FieldBuilder) OnUpdate(onUpdate bool) *FieldBuilder {
+	fb.field.OnUpdate = onUpdate
+	return fb
+}
+
+func (fb *FieldBuilder) Remote(remote bool) *FieldBuilder {
+	fb.field.Remote = remote
+	return fb
+}
+
+func (fb *FieldBuilder) Rel(rel *Relation) *FieldBuilder {
+	fb.field.Rel = rel
+	return fb
+}
+
+func (fb *FieldBuilder) Ops(ops []Op) *FieldBuilder {
+	fb.field.Ops = ops
+	return fb
+}
+
+func (fb *FieldBuilder) Table(table *Table) *FieldBuilder {
+	fb.field.Table = table
+	return fb
+}
+
+func (fb *FieldBuilder) Attrs(attrs ...*Attribute) *FieldBuilder {
+	fb.field.Attrs = append(fb.field.Attrs, attrs...)
+	return fb
+}
+
+func (fb *FieldBuilder) Build() *Field {
+	return fb.field
+}
+
 // Tables 返回非关联表的 Table 列表
 func (s *Schema) Tables() []*Table {
 	tables := make([]*Table, 0)
@@ -251,6 +377,31 @@ func (t *Table) FilterFields() []*Field {
 		}
 	}
 	return fields
+}
+
+// defaultOps returns default operations for given field.
+func defaultOps(t Type, nullable bool) (ops []Op) {
+
+	switch t.(type) {
+	case *BoolType:
+		ops = BoolOps
+	case *EnumType:
+		ops = EnumOps
+	case *IntegerType:
+		ops = NumericOps
+	case *StringType:
+		ops = StringOps
+	case *TimeType:
+		ops = NumericOps
+	default:
+		return
+	}
+
+	if nullable {
+		ops = append(ops, NullableOps...)
+	}
+
+	return
 }
 
 // AddField adds a new field to the table.

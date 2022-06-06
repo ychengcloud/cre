@@ -69,39 +69,33 @@ func TestConvert(t *testing.T) {
 						Name: "t1",
 					},
 				}
+				tables[0].AddFields(
+					spec.Builder("c1").
+						Type(&spec.IntegerType{}).
+						Nullable(true).
+						Comment("c1 comment").
+						PrimaryKey(true).
+						Unique(true).
+						Filterable(true).
+						Sortable(true).
+						Build(),
+					spec.Builder("c2").
+						Type(&spec.StringType{}).
+						Nullable(true).
+						Comment("c2 comment").
+						Build(),
+					spec.Builder("c3").
+						Type(&spec.JSONType{}).
+						Nullable(true).
+						Comment("c3 comment").
+						Build(),
+					spec.Builder("c4").
+						Type(&spec.StringType{}).
+						Comment("c4 comment").
+						Build(),
+				)
 
-				fields := []*spec.Field{
-					{
-						Name:       "c1",
-						Type:       &spec.IntegerType{},
-						Nullable:   true,
-						Comment:    "c1 comment",
-						PrimaryKey: true,
-						Unique:     true,
-						Filterable: true,
-						Sortable:   true,
-					},
-					{
-						Name:     "c2",
-						Type:     &spec.StringType{},
-						Nullable: true,
-						Comment:  "c2 comment",
-					},
-					{
-						Name:     "c3",
-						Type:     &spec.JSONType{},
-						Nullable: true,
-						Comment:  "c3 comment",
-					},
-					{
-						Name:    "c4",
-						Type:    &spec.StringType{},
-						Comment: "c4 comment",
-					},
-				}
-
-				tables[0].AddFields(fields...)
-				tables[0].ID = fields[0]
+				tables[0].ID = tables[0].Fields()[0]
 
 				schema := &spec.Schema{}
 				schema.AddTables(tables...)
@@ -164,26 +158,24 @@ func TestConvert(t *testing.T) {
 					},
 				}
 
-				fields := []*spec.Field{
-					{
-						Name:     "c1",
-						Type:     &spec.IntegerType{},
-						Nullable: true,
-						Comment:  "c1 comment",
-						Unique:   true,
-					},
-					{
-						Name:       "c2",
-						Type:       &spec.IntegerType{},
-						Nullable:   true,
-						Comment:    "c2 comment",
-						PrimaryKey: true,
-						Filterable: true,
-						Sortable:   true,
-					},
-				}
-
-				tables[0].AddFields(fields...)
+				tables[0].AddFields(
+					spec.Builder("c1").
+						Type(&spec.IntegerType{}).
+						Nullable(true).
+						Comment("c1 comment").
+						Unique(true).
+						Index(true).
+						Filterable(true).
+						Build(),
+					spec.Builder("c2").
+						Type(&spec.IntegerType{}).
+						Nullable(true).
+						Comment("c2 comment").
+						PrimaryKey(true).
+						Filterable(true).
+						Sortable(true).
+						Build(),
+				)
 
 				schema := &spec.Schema{}
 				schema.AddTables(tables...)
@@ -249,16 +241,9 @@ func TestConvert(t *testing.T) {
 					},
 				}
 
-				tables[0].AddFields(&spec.Field{
-					Name:       "c1",
-					Type:       &spec.IntegerType{},
-					ForeignKey: true,
-				})
+				tables[0].AddFields(spec.Builder("c1").Type(&spec.IntegerType{}).ForeignKey(true).Build())
+				tables[1].AddFields(spec.Builder("c2").Type(&spec.IntegerType{}).Build())
 
-				tables[1].AddFields(&spec.Field{
-					Name: "c2",
-					Type: &spec.IntegerType{},
-				})
 				schema := &spec.Schema{}
 				schema.AddTables(tables...)
 				return schema

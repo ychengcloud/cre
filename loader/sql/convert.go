@@ -37,25 +37,19 @@ func (t *Table) convert() (*spec.Table, error) {
 
 func (c *Column) convert() (*spec.Field, error) {
 
-	field := &spec.Field{
-		Name:          c.Name,
-		Type:          c.Type,
-		Nullable:      c.Nullable,
-		Comment:       c.Comment,
-		Unique:        c.Unique,
-		PrimaryKey:    c.Primary,
-		AutoIncrement: c.AutoIncrement,
-		OnUpdate:      c.OnUpdate,
-	}
+	fb := spec.Builder(c.Name).
+		Type(c.Type).
+		Nullable(c.Nullable).
+		Comment(c.Comment).
+		Unique(c.Unique).
+		PrimaryKey(c.Primary).
+		AutoIncrement(c.AutoIncrement).
+		OnUpdate(c.OnUpdate)
 
-	convertIndexes(c, field)
-	convertForeignKeys(c, field)
+	convertIndexes(c, fb)
+	convertForeignKeys(c, fb)
 
-	if field.PrimaryKey {
-		field.Filterable = true
-		field.Sortable = true
-	}
-	return field, nil
+	return fb.Build(), nil
 }
 
 func contains(indexColumns []*IndexColumn, c *Column) bool {
@@ -66,27 +60,27 @@ func contains(indexColumns []*IndexColumn, c *Column) bool {
 	}
 	return false
 }
-func convertIndexes(c *Column, field *spec.Field) {
+func convertIndexes(c *Column, b *spec.FieldBuilder) {
 	for _, index := range c.Table.Indexes {
 		if contains(index.IndexColumns, c) {
-
+			b = b.Index(true)
 			if index.Primary {
-				field.PrimaryKey = true
+				b = b.PrimaryKey(true)
 			}
 
 			if index.Unique && len(index.IndexColumns) == 1 {
-				field.Unique = true
+				b = b.Unique(true)
 			}
 		}
 
 	}
 }
 
-func convertForeignKeys(c *Column, field *spec.Field) {
+func convertForeignKeys(c *Column, b *spec.FieldBuilder) {
 	for _, foreighKey := range c.Table.ForeignKeys {
 		for _, fc := range foreighKey.Columns {
 			if fc.Name == c.Name {
-				field.ForeignKey = true
+				b = b.ForeignKey(true)
 			}
 		}
 

@@ -13,59 +13,54 @@ import (
 var (
 
 	// Post { id, user_id, reluser }
-	postIDField = &spec.Field{
-		Name:       "id",
-		Type:       &spec.IntegerType{Name: "int", Size: 32},
-		PrimaryKey: true,
-		Unique:     true,
-	}
-	postNameField = &spec.Field{
-		Name: "name",
-		Type: &spec.StringType{Name: "char", Size: 64},
-	}
-	postSkipField = &spec.Field{Name: "skip"}
+	postIDField = spec.Builder("id").
+			Type(&spec.IntegerType{Name: "int", Size: 32}).
+			PrimaryKey(true).
+			Unique(true).Build()
 
-	postUserIDField = &spec.Field{Name: "user_id", Type: &spec.IntegerType{Name: "int", Size: 32}}
+	postNameField = spec.Builder("name").
+			Type(&spec.StringType{Name: "char", Size: 64}).Build()
 
-	postRelUserField       = &spec.Field{Name: "reluser", Type: &spec.ObjectType{Name: "reluser"}}
-	postRelCategoriesField = &spec.Field{Name: "relcategories", Type: &spec.ObjectType{Name: "relcategories"}}
-	postRelRemoteIDField   = &spec.Field{Name: "remote_id", Type: &spec.IntegerType{Name: "int", Size: 32}}
-	postRelRemoteField     = &spec.Field{Name: "relremote", Type: &spec.ObjectType{Name: "relremote"}, Remote: true}
+	postSkipField   = spec.Builder("skip").Build()
+	postUserIDField = spec.Builder("user_id").Type(&spec.IntegerType{Name: "int", Size: 32}).Build()
+
+	postRelUserField       = spec.Builder("reluser").Type(&spec.ObjectType{Name: "reluser"}).Build()
+	postRelCategoriesField = spec.Builder("relcategories").Type(&spec.ObjectType{Name: "relcategories"}).Build()
+	postRelRemoteIDField   = spec.Builder("remote_id").Type(&spec.IntegerType{Name: "int", Size: 32}).Build()
+	postRelRemoteField     = spec.Builder("relremote").Type(&spec.ObjectType{Name: "relremote"}).Remote(true).Build()
 
 	postTable = &spec.Table{Name: "post"}
 
 	// Category { id }
-	categoryIDField = &spec.Field{
-		Name:       "id",
-		Type:       &spec.IntegerType{Name: "int", Size: 32},
-		PrimaryKey: true,
-		Unique:     true,
-	}
+	categoryIDField = spec.Builder("id").
+			Type(&spec.IntegerType{Name: "int", Size: 32}).
+			PrimaryKey(true).
+			Unique(true).Build()
 
 	categoryTable = &spec.Table{Name: "category"}
 
 	// PostCategory { id, post_id, category_id }
-	postCategoryIDField = &spec.Field{
-		Name:       "id",
-		Type:       &spec.IntegerType{Name: "int", Size: 32},
-		PrimaryKey: true,
-		Unique:     true,
-	}
-	postCategoryPostIDField     = &spec.Field{Name: "post_id", Type: &spec.IntegerType{Name: "int", Size: 32}}
-	postCategoryCategoryIDField = &spec.Field{Name: "category_id", Type: &spec.IntegerType{Name: "int", Size: 32}}
+	postCategoryIDField = spec.Builder("id").
+				Type(&spec.IntegerType{Name: "int", Size: 32}).
+				PrimaryKey(true).
+				Unique(true).Build()
+
+	postCategoryPostIDField     = spec.Builder("post_id").Type(&spec.IntegerType{Name: "int", Size: 32}).Build()
+	postCategoryCategoryIDField = spec.Builder("category_id").Type(&spec.IntegerType{Name: "int", Size: 32}).Build()
 
 	postCategoryTable = &spec.Table{Name: "post_category"}
 
 	// User { id }
-	userIDField          = &spec.Field{Name: "id", Type: &spec.IntegerType{Name: "int", Size: 32}, PrimaryKey: true, Unique: true}
-	userRelOnePostField  = &spec.Field{Name: "relonepost", Type: &spec.ObjectType{Name: "relonepost"}}
-	UserRelManyPostField = &spec.Field{Name: "relmanyposts", Type: &spec.ObjectType{Name: "relmanyposts"}}
-	userTable            = &spec.Table{Name: "user"}
+	userIDField          = spec.Builder("id").Type(&spec.IntegerType{Name: "int", Size: 32}).PrimaryKey(true).Unique(true).Build()
+	userRelOnePostField  = spec.Builder("relonepost").Type(&spec.ObjectType{Name: "relonepost"}).Build()
+	UserRelManyPostField = spec.Builder("relmanyposts").Type(&spec.ObjectType{Name: "relmanyposts"}).Build()
+
+	userTable = &spec.Table{Name: "user"}
 
 	skipTable = &spec.Table{Name: "skip"}
 
 	// Remote { id }
-	remoteIDField = &spec.Field{Name: "id"}
+	remoteIDField = spec.Builder("id").Build()
 
 	remoteTable = &spec.Table{Name: "remote"}
 )
@@ -149,24 +144,22 @@ func TestMergeSchema(t *testing.T) {
 	skipField := post.GetField("skip")
 	r.Nil(skipField)
 
-	expectedIDField := &spec.Field{
-		Name:       "id",
-		Type:       &spec.IntegerType{Name: "int", Size: 32},
-		PrimaryKey: true,
-		Unique:     true,
-		Ops:        spec.NumericOps,
-	}
-	expectedNameField := &spec.Field{
-		Name:       "name",
-		Type:       &spec.StringType{Name: "char", Size: 64},
-		Nullable:   true,
-		Optional:   true,
-		Comment:    "post name",
-		Alias:      "postAlias",
-		Sortable:   true,
-		Filterable: true,
-		Ops:        []spec.Op{spec.Eq, spec.In},
-	}
+	expectedIDField := spec.Builder("id").
+		Type(&spec.IntegerType{Name: "int", Size: 32}).
+		PrimaryKey(true).
+		Unique(true).
+		Ops(spec.NumericOps).Build()
+
+	expectedNameField := spec.Builder("name").
+		Type(&spec.StringType{Name: "char", Size: 64}).
+		Nullable(true).
+		Optional(true).
+		Comment("post name").
+		Alias("postAlias").
+		Sortable(true).
+		Filterable(true).
+		Ops([]spec.Op{spec.Eq, spec.In}).Build()
+
 	matchField(t, expectedIDField, actualPostIDField)
 	matchField(t, expectedNameField, actualPostNameField)
 }
@@ -358,32 +351,30 @@ func TestRelationRemote(t *testing.T) {
 	r.Error(err)
 }
 
-func TestGetOps(t *testing.T) {
-	id := &spec.Field{
-		Name:       "id",
-		Type:       &spec.IntegerType{Name: "int", Size: 32},
-		PrimaryKey: true,
-	}
+func TestMergeOps(t *testing.T) {
+	id := spec.Builder("id").
+		Type(&spec.IntegerType{Name: "int", Size: 32}).
+		PrimaryKey(true).Build()
 
-	name := &spec.Field{
-		Name: "name",
-		Type: &spec.StringType{Name: "char", Size: 64},
-	}
+	name := spec.Builder("name").
+		Type(&spec.StringType{Name: "char", Size: 64}).Build()
 
-	ops := getOps(id)
+	f, err := mergeOps(id, []string{})
+
 	r := require.New(t)
-	r.Equal(len(spec.NumericOps), len(ops))
-	r.Equal(spec.Eq, ops[spec.Eq-1])
-	r.Equal(spec.Neq, ops[spec.Neq-1])
-	r.Equal(spec.In, ops[spec.In-1])
-	r.Equal(spec.NotIn, ops[spec.NotIn-1])
-	r.Equal(spec.Gt, ops[spec.Gt-1])
-	r.Equal(spec.Gte, ops[spec.Gte-1])
-	r.Equal(spec.Lt, ops[spec.Lt-1])
-	r.Equal(spec.Lte, ops[spec.Lte-1])
+	r.NoError(err)
+	r.Equal(len(spec.NumericOps), len(f.Ops))
+	r.Equal(spec.Eq, f.Ops[spec.Eq-1])
 
-	ops = getOps(name)
-	r.Equal(len(spec.StringOps), len(ops))
+	f, err = mergeOps(name, []string{})
+	r.NoError(err)
+	r.Equal(len(spec.StringOps), len(f.Ops))
+
+	f, err = mergeOps(id, []string{"Eq"})
+	r.NoError(err)
+	r.Equal(1, len(f.Ops))
+	r.Equal(spec.Eq, f.Ops[0])
+
 }
 
 func TestMergeType(t *testing.T) {

@@ -349,6 +349,10 @@ func (g *Generator) Template(name string, v any) (string, error) {
 	return b.String(), nil
 }
 
+func (g *Generator) Schema() *spec.Schema {
+	return g.schema
+}
+
 func (a assets) write() error {
 	for _, d := range a.dirs {
 		if err := os.MkdirAll(d, os.ModePerm); err != nil {

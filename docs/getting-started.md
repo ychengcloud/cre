@@ -37,178 +37,250 @@ mysql -h <host> -u <user> < mysql.sql
 ```
 ## 创建项目
 
-运行下列命令创建一个新的项目：
+以 Linux 下 shell 命令为例
+
+## 生成代码
+
+- 下载 `grpc` 模板
 
 ```bash
-cre init todo
+mkdir -p $HOME/.cre/contrib
+git clone https://github.com/ychengcloud/contrib $HOME/.cre/contrib
+
+```
+
+# 创建项目目录
+
+```bash
+mkdir todo
 
 cd todo
 
-mv cre-example.yml cre.yml
+# 复制模板文件到项目目录
+cp -r $HOME/.cre/contrib/grpc/skeleton/* .
+
+## 数据字典
+数据字典文件，命名为 schema.sql 置于 database 目录下
+
 ```
 
-此命令将在当前目录生成名为 `todo` 的项目，并生成配置文件模板。
-
-
-修改 `cre.yml` 内容如下：
+新建 `cre.yaml` 内容如下：
 
 ```yaml
+
 # 项目名称
-projectName: "todo"
-
-# 是否自动覆盖已有文件
-overwrite: false
-
-# 数据库类型
-loader: "mysql"
-
-# Extra 为用户自定义变量，以 map 结构读取，golang 中 map的key 不区分大小写，所以引用时全部以小写形式引用，例如 ： .Extra.pkgpath
-extra:
-  pkgPath: "github.com/ychengcloud/todo"
+project: todo
+package: "github.com/ychengcloud/todo"
+# 数据库配置
+dsn: "mysql://<user>:<password>@tcp(127.0.0.1:3306)/todo?charset=utf8mb4"
+# 模板根路径
+root: "$HOME/.cre/contrib/grpc/templates"
+# 模板生成根路径
+genRoot: "./"
 
 # Golang 的默认变量标识符与模板中的变量标识符相同时，需要修改成不同的
 #delim:
 #  left: "@@"
 #  right: "@@"
 
-# 数据库配置
-db:
-  dialect: "mysql"
-  user: "<user>"
-  password: "<password>"
-  host: "127.0.0.1"
-  port: 3306
-  name: "todo"
-  charset: "utf8mb4"
-
 # NameFormat 目标路径
-# Path 模板路径名，以 templates为相对路径
+# Path 模板路径名，以 root 为相对路径
+# genPath 模板生成路径, 以 genRoot 为相对路径
+# format 文件名，支持模板变量
+# mode 生成模式， single: 单文件， multi: 多文件
 templates:
-  - nameFormat: "internal/generated/models/%s.go"
-    path:   "models/model.go.tmpl"
-  - nameFormat: "internal/resolvers/%s.go"
-    path:   "resolvers/resolver.go.tmpl"
-  - nameFormat: "internal/generated/schemas/%s.gql"
-    path:   "schemas/schema.gql.tmpl"
-  - nameFormat: "internal/generated/services/%s.go"
-    path:   "services/service.go.tmpl"
+  - path: "proto/v1/api.proto.tmpl"
+    genPath: "proto/todo/v1"
+    format: "{{.Schema}}.proto"
+    mode: "single"
 
+  - path: "go.mod.tmpl"
+    genPath: "./"
+    format: "go.mod"
+
+  - path: "buf.gen.yaml.tmpl"
+    genPath: "./"
+    format: "buf.gen.yaml"
+
+  - path: "cmd/main.go.tmpl"
+    genPath: "cmd"
+    format: "main.go"
+
+  - path: "cmd/injector.go.tmpl"
+    genPath: "cmd"
+    format: "injector.go"
+
+  - path: "models/model.go.tmpl"
+    genPath: "models"
+    format: "{{.Table}}.go"
+    mode: "multi"
+
+  - path: "repositories/repository.go.tmpl"
+    genPath: "repositories"
+    format: "repository.go"
+
+  - path: "repositories/repository_test.go.tmpl"
+    genPath: "repositories"
+    format: "repository_test.go"
+
+  - path: "repositories/gorm/gorm.go.tmpl"
+    genPath: "repositories/gorm"
+    format: "gorm.go"
+  - path: "repositories/gorm/gorm_test.go.tmpl"
+    genPath: "repositories/gorm"
+    format: "gorm_test.go"
+  - path: "repositories/gorm/repository.go.tmpl"
+    genPath: "repositories/gorm"
+    format: "{{.Table}}.go"
+    mode: "multi"
+  - path: "repositories/gorm/repository_test.go.tmpl"
+    genPath: "repositories/gorm"
+    format: "{{.Table}}_test.go"
+    mode: "multi"
+
+  - path: "server/server.go.tmpl"
+    genPath: "server"
+    format: "server.go"
+
+  - path: "services/base.go.tmpl"
+    genPath: "services"
+    format: "service.go"
+
+  - path: "services/base_test.go.tmpl"
+    genPath: "services"
+    format: "service_test.go"
+
+  - path: "services/service.go.tmpl"
+    genPath: "services"
+    format: "{{.Table}}.go"
+    mode: "multi"
+
+  - path: "services/service_test.go.tmpl"
+    genPath: "services"
+    format: "{{.Table}}_test.go"
+    mode: "multi"
+
+  - path: "test/data.go.tmpl"
+    genPath: "test"
+    format: "data.go"
+  
+  - path: "test/e2e/gorm/gorm_test.go.tmpl"
+    genPath: "test/e2e/gorm"
+    format: "gorm_test.go"
+    
 # 数据表配置
 tables:
   - name: "todos"
     fields:
     - name: "id"
-      isRequired: true
-      isFilterable: true
+      required: true
+      filterable: true
       operations: ["Eq", "In"]
     - name: "title"
-      isRequired: true
-      isFilterable: true
+      required: true
+      filterable: true
       operations: ["Eq", "In"]
   
 ```
 
-## 生成代码
 
-- 下载 `graphql-server` 模板
-
-```bash
-mkdir -p $HOME/.cre/graphql-server-template
-git clone https://github.com/ychengcloud/graphql-server-template $HOME/.cre/graphql-server-template
-
-```
-
-- 基于模板和配置文件生成代码
+- 生成代码
 
 ```bash
-cre generate -t $HOME/.cre/graphql-server-template/ -c ./cre.yml
-```
 
-## 构建
-
-```bash
-# 执行 gqlgen
-make gql_gen
-
-# go modules
+make gen
+make install
+make mock
+make proto
 go mod tidy
-
-# 依赖注入
-make wire
-
-# 构建
-make build
+go test ./...
 
 ```
 
 ## 运行前配置
 
-```bash
-mv configs/server-example.yml server.yml
-```
+config.default.yaml 为全部可配置项, 默认新建 config.yaml，只需要添加需要覆盖的配置项即可。
 
-修改配置模板内容如下：
+配置模板内容如下：
 
 ```yaml
 app:
-  name: "todo"
-http:
-  mode: "debug"
-  # mode: release
-  host: 0.0.0.0
+  name: 
+  # 运行模式 1. debug 2. release， 默认 release
+  mode: debug
+  # 是否能访问Api文档, 默认 false
+  doc: true
+  # 绑定 IP
+  host: 127.0.0.1
+  # 绑定 Port
   port: 7779
-  graphqlPath: "graphql"
-  playgroundPath: "playground"
-  isPlaygroundEnabled: true
-  allowOrigins:
-    - "*"
-  allowMethods: 
-    - "PUT"
-    - "GET"
-    - "POST"
-    - "HEAD"
-    - "PATCH"
-    - "OPTIONS"
-    - "DELETE"
-  allowHeaders:
-    - "*"
-db:
-  dialect: "mysql"
-  debug: true
-  autoMigrate: false
 
+
+db:
+  dialect: mysql
   mysql:
-    user: "<user>"
-    password: "<password>"
+    user: root
+    password: ""
     host: "127.0.0.1"
     port: 3306
-    name: "todo"
-    charset: "utf8mb4"
-
-auth:
-  skip: true
-
-log:
-  filename: "/tmp/todo.log"
+    name: project
+    charset: utf8mb4
+    debug: true
+logger:
+  filename: /tmp/.log
   maxSize: 500
   maxBackups: 3
   maxAge: 3
   level: "debug"
   stdout: false
-jaeger:
-  serviceName: "admin"
-  reporter:
-    localAgentHostPort: "jaeger-agent:6831"
-  sampler:
-    type: "const"
-    param: 1
+
+probes:
+  # 是否开启 Kubernetes probes, 默认 false
+  enable: false
+  readinessPath: /ready
+  livenessPath: /live
+  port: 8080
+prometheus:
+  # 是否开启 Prometheus, 默认 false
+  enable: false
+  path: /metrics
+  port: 8003
+  checkIntervalSeconds: 10
+pprof:
+  # 是否能访问Golang Pprof, 默认 false
+  enable: false
+  port: 6060
+tracing: 
+  # 是否开启 opentracing, 默认 false
+  enable: false
+  jaeger:
+    serviceName: admin
+    logSpans: false
+    reporter:
+      localAgentHostPort: "jaeger-agent:6831"
+    sampler:
+      type: const
+      param: 1
 jwt:
-  signingKey: "YOUCHENG"
-  issuer: "ycheng.pro"
-  claimKey: "claim"
-  signingMethod: "HS512"
+  # dd if=/dev/urandom bs=1 count=32 2>/dev/null | base64 -w 0 | rev | cut -b 2- | rev
+  # signingKey: GRuHhzxQm7z0H7jFBHxd0x2UEjvJHgt+286nnJCOHYw
+  contextKey: users
+  hydraKeysUri: http://localhost:4445/keys/hydra.openid.id-token
+  tokenType: bearer
+  signingKey: YOUCHENG
+  issuer: newx.io
+  claimKey: claim
+  signingMethod: HS512
   # seconds
   expired: 1000000
+oauth:
+  endpoint:
+    authURL: "http://localhost:4444/oauth2/auth"
+    tokenURL: "http://localhost:4444/oauth2/token"
+  config:
+    redirectURL: "http://localhost:3001/auth/callback"
+    clientID: "myclient5"
+    clientSecret: "mysecret5"
 
 ```
 

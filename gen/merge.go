@@ -6,45 +6,19 @@ import (
 	"github.com/ychengcloud/cre/spec"
 )
 
-// ops returns all operations for given field.
-func getOps(f *spec.Field) (ops []spec.Op) {
-
-	switch f.Type.(type) {
-	case *spec.BoolType:
-		ops = spec.BoolOps
-	case *spec.EnumType:
-		ops = spec.EnumOps
-	case *spec.IntegerType:
-		ops = spec.NumericOps
-	case *spec.StringType:
-		ops = spec.StringOps
-	case *spec.TimeType:
-		ops = spec.NumericOps
-	default:
-		return
-	}
-
-	if f.Optional {
-		ops = append(ops, spec.NullableOps...)
-	}
-
-	return
-}
-
 func mergeOps(f *spec.Field, ops []string) (*spec.Field, error) {
-	if len(ops) > 0 {
-		for _, opc := range ops {
-			op := spec.GetOP(opc)
-			if op == spec.Unknown {
-				return nil, fmt.Errorf("unknown operation: %s", opc)
-			}
-			f.Ops = append(f.Ops, op)
-		}
+	if len(ops) == 0 {
 		return f, nil
 	}
 
-	f.Ops = getOps(f)
-
+	f.Ops = make([]spec.Op, len(ops))
+	for i, opc := range ops {
+		op := spec.GetOP(opc)
+		if op == spec.Unknown {
+			return nil, fmt.Errorf("unknown operation: %s", opc)
+		}
+		f.Ops[i] = op
+	}
 	return f, nil
 }
 
@@ -109,7 +83,7 @@ func refTable(f *spec.Field, refTableName string) (*spec.Table, error) {
 
 func refField(f *spec.Field, refTableName string, refFieldName string) (*spec.Field, error) {
 	if f.Remote {
-		rf := &spec.Field{Name: refFieldName}
+		rf := spec.Builder(refFieldName).Build()
 		f.Rel.RefTable.AddFields(rf)
 		f.Rel.RefTable.ID = rf
 		return rf, nil
@@ -292,7 +266,9 @@ func mergeField(f *spec.Field, fc *Field) (*spec.Field, error) {
 		}
 	}
 
-	f, err := mergeOps(f, fc.Operations)
+	var err error
+
+	f, err = mergeOps(f, fc.Operations)
 	if err != nil {
 		return nil, err
 	}
