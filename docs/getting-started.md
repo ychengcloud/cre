@@ -91,7 +91,7 @@ genRoot: "./"
 templates:
   - path: "proto/v1/api.proto.tmpl"
     genPath: "proto/todo/v1"
-    format: "{{.Schema}}.proto"
+    format: "api.proto"
     mode: "single"
 
   - path: "go.mod.tmpl"

@@ -38,14 +38,15 @@ const (
 )
 
 type Config struct {
-	Project   string `yaml:"project"` // the name of the project.
-	Package   string `yaml:"package"` // the name of the generated package.
-	Header    string `yaml:"header"`
-	DSN       string `yaml:"dsn"`
-	Overwrite bool   `yaml:"overwrite"`
-	Delim     Delim  `yaml:"delim"`   // 模板变量标识符
-	Root      string `yaml:"root"`    // 模板根目录
-	GenRoot   string `yaml:"genRoot"` // 生成根目录
+	Project   string         `yaml:"project"` // the name of the project.
+	Package   string         `yaml:"package"` // the name of the generated package.
+	Header    string         `yaml:"header"`
+	DSN       string         `yaml:"dsn"`
+	Overwrite bool           `yaml:"overwrite"`
+	Delim     Delim          `yaml:"delim"`   // 模板变量标识符
+	Root      string         `yaml:"root"`    // 模板根目录
+	GenRoot   string         `yaml:"genRoot"` // 生成根目录
+	Attrs     map[string]any `yaml:"attrs"`   // 其他配置项
 
 	// Templates 所有的 Template Path 需要保证唯一，实际模板文件路径仅为更好的组织文件
 	Templates []*Template `yaml:"templates"`
