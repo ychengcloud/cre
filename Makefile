@@ -32,12 +32,6 @@ install: ; $(info $(M) installing …) @ ## Install program binary
 release: ; $(info $(M) releasing ...) @
 	$(RELEASER) release --rm-dist
 
-# Docs
-
-.PHONY: docs
-docs:
-	docsify serve ./docs
-	
 # Tests
 
 TEST_TARGETS := test-default test-bench test-short test-verbose test-race
@@ -96,8 +90,3 @@ help:
 .PHONY: version
 version:
 	@echo $(VERSION)
-
-
-.PHONY: deps
-deps:
-	npm i docsify-cli -g
