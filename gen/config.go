@@ -41,6 +41,7 @@ type Config struct {
 	Project   string         `yaml:"project"` // the name of the project.
 	Package   string         `yaml:"package"` // the name of the generated package.
 	Header    string         `yaml:"header"`
+	Dialect   string         `yaml:"dialect"` // the name of the dialect.
 	DSN       string         `yaml:"dsn"`
 	Overwrite bool           `yaml:"overwrite"`
 	Delim     Delim          `yaml:"delim"`   // 模板变量标识符

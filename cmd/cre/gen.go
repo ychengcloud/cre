@@ -53,7 +53,7 @@ Are you sure to continue?
 		}
 
 		if err := api.Generate(cfg); err != nil {
-			fmt.Println(err.Error())
+			fmt.Println("gen error:", err.Error())
 			return
 		}
 		fmt.Println("Done")

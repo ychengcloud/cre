@@ -18,13 +18,9 @@ cre -v
 
 ## 命令行用法
 
-- init
-
-初始化命令， 会在当前目录生成项目目录和样例配置文件
-
 - generate
 
-生成命令，根据指定模板生成相应项目
+生成命令，根据配置文件生成相应代码
 
 ```bash
 cre -h
@@ -36,7 +32,6 @@ Usage:
 Available Commands:
   generate    generate go code for the database schema
   help        Help about any command
-  init        initialize framework for project
 
 Flags:
   -h, --help      help for cre

@@ -1,6 +1,7 @@
 <!-- docs/_sidebar.md -->
 
 * [Introduce](en_US/README.md)
+* [Why](en_US/why.md)
 * [Setup](en_US/setup-local.md)
 * [Getting Stated](en_US/getting-started.md)
 * [Guide](en_US/guide.md)

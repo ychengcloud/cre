@@ -455,6 +455,25 @@ func (t *Table) HasParent() bool {
 	return false
 }
 
+// HasRelations returns true if the table has a relation table.
+func (t *Table) HasRelations() bool {
+	for _, f := range t.fields {
+		if !f.RelNone() {
+			return true
+		}
+	}
+	return false
+}
+
+// AutoIncrement returns true if the table has a auto increment primaryKey.
+func (t *Table) AutoIncrement() bool {
+	if t.ID == nil {
+		return false
+	}
+
+	return t.ID.AutoIncrement
+}
+
 // RelNone returns true if the relation is none.
 func (f *Field) RelNone() bool {
 	return f.Rel == nil || f.Rel.Type == RelTypeNone

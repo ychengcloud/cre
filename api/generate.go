@@ -15,13 +15,8 @@ import (
 func Generate(cfg *gen.Config) error {
 	var loaderInstance cre.Loader
 
-	i := strings.Index(cfg.DSN, "://")
-	if i == -1 {
-		return fmt.Errorf("invalid data source name")
-	}
-
-	dialect := strings.TrimSpace(cfg.DSN[:i])
-	dsn := cfg.DSN[i+3:]
+	dialect := strings.TrimSpace(cfg.Dialect)
+	dsn := strings.TrimSpace(cfg.DSN)
 
 	switch dialect {
 	case gen.LoaderMysql, gen.LoaderPostgres:

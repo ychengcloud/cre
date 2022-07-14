@@ -218,16 +218,12 @@ app:
 
 db:
   dialect: mysql
-  mysql:
-    user: root
-    password: ""
-    host: "127.0.0.1"
-    port: 3306
-    name: project
-    charset: utf8mb4
-    debug: true
+  dsn: "root:@tcp(127.0.0.1:3306)/<dbname>?charset=utf8mb4"
+  debug: false
+  authMigrate: false
+  
 logger:
-  filename: /tmp/.log
+  filename: /tmp/<logname>.log
   maxSize: 500
   maxBackups: 3
   maxAge: 3
@@ -253,6 +249,8 @@ pprof:
 tracing: 
   # 是否开启 opentracing, 默认 false
   enable: false
+  environment: development
+  id: 1
   jaeger:
     serviceName: admin
     logSpans: false

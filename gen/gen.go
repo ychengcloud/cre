@@ -244,17 +244,17 @@ func (g *Generator) generateSingle(tplCfg *Template) error {
 
 	t, ok := g.templates[tplCfg.Path]
 	if !ok {
-		return fmt.Errorf("load template %s fail", tplCfg.Path)
+		return fmt.Errorf("generateSingle load template %s fail", tplCfg.Path)
 	}
 
 	if err := t.Execute(b, s); err != nil {
-		return err
+		return fmt.Errorf("generateSingle Execute : %s : %s", tplCfg.Path, err.Error())
 	}
 
 	ext := filepath.Ext(tplCfg.Format)
 	if ext == ".go" {
 		if s.ImportPkg, err = goImportPkgs(b); err != nil {
-			return err
+			return fmt.Errorf("parse import pkgs : %s : %s", tplCfg.Path, err.Error())
 		}
 	}
 
@@ -293,16 +293,16 @@ func (g *Generator) generateMulti(tplCfg *Template) error {
 
 		t, ok := g.templates[tplCfg.Path]
 		if !ok {
-			return fmt.Errorf("load template %s fail", tplCfg.Path)
+			return fmt.Errorf("generateMulti load template %s fail", tplCfg.Path)
 		}
 
 		if err := t.Execute(b, td); err != nil {
-			return err
+			return fmt.Errorf("generateMulti Execute : %s : %s", tplCfg.Path, err.Error())
 		}
 		ext := filepath.Ext(tplCfg.Format)
 		if ext == ".go" {
 			if td.ImportPkg, err = goImportPkgs(b); err != nil {
-				return err
+				return fmt.Errorf("generateMulti import pkgs : %s : %s", tplCfg.Path, err.Error())
 			}
 		}
 

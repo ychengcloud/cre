@@ -190,7 +190,7 @@ func (s *SpatialType) Kind() string {
 	return s.Name
 }
 func (*JSONType) Kind() string {
-	return "[]byte"
+	return "json"
 }
 
 func (o *ObjectType) Kind() string {
