@@ -3,6 +3,8 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
+	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
 	"github.com/sirupsen/logrus"
@@ -68,8 +70,8 @@ func init() {
 
 }
 
-func loadConfig(path string) *gen.Config {
-	d, err := os.ReadFile(path)
+func loadConfig(filename string) *gen.Config {
+	d, err := os.ReadFile(filename)
 	if err != nil {
 		logrus.Fatalf("Fatal error config file: %s \n", err)
 		os.Exit(1)
@@ -85,5 +87,26 @@ func loadConfig(path string) *gen.Config {
 		logrus.Fatalf("Config unmarshal fail: %s \n", err)
 		os.Exit(1)
 	}
+
+	dir := filepath.Dir(filename)
+	ext := filepath.Ext(filename)
+	name := strings.TrimSuffix(filepath.Base(filename), ext)
+	overwriteTemplate := filepath.Join(dir, name+".template"+ext)
+
+	d, err = os.ReadFile(overwriteTemplate)
+	if err != nil {
+		logrus.Fatalf("Fatal error overwrite template config file: %s \n", err)
+		os.Exit(1)
+	}
+
+	// 支持环境变量
+	d = []byte(os.ExpandEnv(string(d)))
+
+	err = yaml.Unmarshal(d, cfg)
+	if err != nil {
+		logrus.Fatalf("Config unmarshal overwrite template fail: %s \n", err)
+		os.Exit(1)
+	}
+
 	return cfg
 }

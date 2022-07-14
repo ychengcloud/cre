@@ -70,20 +70,15 @@ cp -r $HOME/.cre/contrib/grpc/skeleton/* .
 
 # 项目名称
 project: todo
-package: "github.com/ychengcloud/todo"
+package: "<package name>"
 # 数据库配置
+dialect: "mysql"
 dsn: "mysql://<user>:<password>@tcp(127.0.0.1:3306)/todo?charset=utf8mb4"
 # 模板根路径
 root: "$HOME/.cre/contrib/grpc/templates"
 # 模板生成根路径
 genRoot: "./"
 
-# Golang 的默认变量标识符与模板中的变量标识符相同时，需要修改成不同的
-#delim:
-#  left: "@@"
-#  right: "@@"
-
-# NameFormat 目标路径
 # Path 模板路径名，以 root 为相对路径
 # genPath 模板生成路径, 以 genRoot 为相对路径
 # format 文件名，支持模板变量
