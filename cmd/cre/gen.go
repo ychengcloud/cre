@@ -3,14 +3,12 @@ package main
 import (
 	"fmt"
 	"os"
-	"path/filepath"
 	"strings"
 
 	"github.com/AlecAivazis/survey/v2"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 
-	"gopkg.in/yaml.v3"
 	// "github.com/goccy/go-yaml"
 
 	"github.com/ychengcloud/cre/api"
@@ -22,12 +20,12 @@ var configPath string
 var generateCmd = &cobra.Command{
 	Use:     "generate [flags]",
 	Short:   "generate go code for the database schema",
-	Example: `heidou generate -c ./config.yml`,
+	Example: `heidou generate -c ./config`,
 	Args: func(_ *cobra.Command, args []string) error {
 		return nil
 	},
 	Run: func(cmd *cobra.Command, args []string) {
-		cfg := loadConfig(configPath)
+		cfg := loadConfig(configPath, strings.ToUpper("cre_"))
 
 		if cfg.Overwrite {
 			prompt := &survey.Confirm{
@@ -70,43 +68,47 @@ func init() {
 
 }
 
-func loadConfig(filename string) *gen.Config {
-	d, err := os.ReadFile(filename)
-	if err != nil {
-		logrus.Fatalf("Fatal error config file: %s \n", err)
+func loadConfig(path string, prefix string) *gen.Config {
+	var (
+		v = viper.New()
+	)
+
+	v.AddConfigPath(".")
+	v.AddConfigPath("./")
+	v.AddConfigPath("/etc/")   // path to look for the config file in
+	v.AddConfigPath("$HOME/.") // call multiple times to add many search paths
+
+	v.AutomaticEnv()
+	v.SetEnvPrefix(prefix)
+
+	conf := &gen.Config{}
+
+	//读取默认配置
+	v.SetConfigName(string(path + ".template"))
+	if err := v.ReadInConfig(); err == nil {
+		fmt.Printf("use config file -> %s\n", v.ConfigFileUsed())
+		if err := v.Unmarshal(conf); err != nil {
+			fmt.Printf("unmarshal conf failed, err:%s \n", err)
+			os.Exit(1)
+		}
+	} else {
+		fmt.Printf("Can't read default config file -> %s\n", v.ConfigFileUsed())
 		os.Exit(1)
 	}
 
-	// 支持环境变量
-	d = []byte(os.ExpandEnv(string(d)))
-
-	cfg := &gen.Config{}
-
-	err = yaml.Unmarshal(d, cfg)
-	if err != nil {
-		logrus.Fatalf("Config unmarshal fail: %s \n", err)
+	//读取应用配置
+	v.SetConfigName(string(path))
+	if err := v.ReadInConfig(); err == nil {
+		fmt.Printf("use config file -> %s\n", v.ConfigFileUsed())
+	} else {
+		fmt.Printf("unmarshal conf failed, err:%s \n", err)
 		os.Exit(1)
 	}
 
-	dir := filepath.Dir(filename)
-	ext := filepath.Ext(filename)
-	name := strings.TrimSuffix(filepath.Base(filename), ext)
-	overwriteTemplate := filepath.Join(dir, name+".template"+ext)
-
-	d, err = os.ReadFile(overwriteTemplate)
-	if err != nil {
-		logrus.Fatalf("Fatal error overwrite template config file: %s \n", err)
+	if err := v.Unmarshal(conf); err != nil {
+		fmt.Printf("unmarshal conf failed, err:%s \n", err)
 		os.Exit(1)
 	}
 
-	// 支持环境变量
-	d = []byte(os.ExpandEnv(string(d)))
-
-	err = yaml.Unmarshal(d, cfg)
-	if err != nil {
-		logrus.Fatalf("Config unmarshal overwrite template fail: %s \n", err)
-		os.Exit(1)
-	}
-
-	return cfg
+	return conf
 }
