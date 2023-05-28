@@ -9,6 +9,7 @@ import (
 	"io"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"strconv"
 	"text/template"
@@ -65,6 +66,7 @@ type assetName struct {
 	Package string
 	Schema  string
 	Table   string
+	Path    string
 }
 
 func NewGenerator(cfg *Config, loader cre.Loader) (*Generator, error) {
@@ -96,7 +98,9 @@ func schemaName(dialect, dsn string) (string, error) {
 
 func (g *Generator) Generate(ctx context.Context) error {
 
-	g.loadTemplates()
+	if err := g.loadTemplates(); err != nil {
+		return err
+	}
 
 	sn, err := schemaName(g.Loader.Dialect(), g.Cfg.DSN)
 	if err != nil {
@@ -147,7 +151,7 @@ func MustParse(t *template.Template, err error) *template.Template {
 	return t
 }
 
-func (g *Generator) loadTemplates() {
+func (g *Generator) loadTemplates() error {
 	g.root = os.DirFS(g.Cfg.Root)
 
 	walkFn := func(path string, entry fs.DirEntry, err error) error {
@@ -169,15 +173,20 @@ func (g *Generator) loadTemplates() {
 			t.Delims(g.Cfg.Delim.Left, g.Cfg.Delim.Right)
 		}
 
-		g.templates[path] = MustParse(t.ParseFS(g.root, path))
+		t, err = t.ParseFS(g.root, path)
+		if err != nil {
+			return fmt.Errorf("walk: %w", err)
+		}
+		g.templates[path] = t
 		return nil
 	}
 
 	err := fs.WalkDir(g.root, ".", walkFn)
 	if err != nil {
-		panic(err)
+		return fmt.Errorf("loadTemplates: %w", err)
 	}
 
+	return nil
 }
 
 func fileName(an assetName, format string) (string, error) {
@@ -195,6 +204,12 @@ func (g *Generator) file(an assetName, t *Template, data []byte) error {
 	name, err := fileName(an, t.Format)
 	if err != nil {
 		return err
+	}
+
+	d := path.Dir(name)
+
+	if d != "." && d != "/" {
+		g.assets.dirs = append(g.assets.dirs, path.Join(an.Path, d))
 	}
 
 	g.assets.files = append(g.assets.files, file{
@@ -266,6 +281,7 @@ func (g *Generator) generateSingle(tplCfg *Template) error {
 	an := assetName{
 		Package: g.Cfg.Package,
 		Schema:  g.schema.Name,
+		Path:    tplCfg.GenPath,
 	}
 
 	if err := g.file(an, tplCfg, b.Bytes()); err != nil {
@@ -314,6 +330,7 @@ func (g *Generator) generateMulti(tplCfg *Template) error {
 			Package: g.Cfg.Package,
 			Schema:  g.schema.Name,
 			Table:   table.Name,
+			Path:    tplCfg.GenPath,
 		}
 
 		if err := g.file(an, tplCfg, b.Bytes()); err != nil {
