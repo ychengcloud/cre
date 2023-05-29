@@ -22,7 +22,8 @@ func (s *Schema) Convert() (*spec.Schema, error) {
 
 func (t *Table) convert() (*spec.Table, error) {
 	table := &spec.Table{
-		Name: t.Name,
+		Name:    t.Name,
+		Comment: t.Comment,
 	}
 	for _, c := range t.Columns {
 		field, err := c.convert()

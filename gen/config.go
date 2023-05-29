@@ -71,41 +71,45 @@ type Template struct {
 }
 
 type Table struct {
-	Name   string   `yaml:"name" mapstructure:"name"`
-	Skip   bool     `yaml:"skip" mapstructure:"skip"` // Skip 忽略表
-	Fields []*Field `yaml:"fields" mapstructure:"fields"`
+	Name   string         `yaml:"name" mapstructure:"name"`
+	Skip   bool           `yaml:"skip" mapstructure:"skip"` // Skip 忽略表
+	Fields []*Field       `yaml:"fields" mapstructure:"fields"`
+	Attrs  map[string]any `yaml:"attrs" mapstructure:"attrs"` // 其他配置项
 }
 
 type Field struct {
-	Name       string    `yaml:"name" mapstructure:"name"`
-	Type       Type      `yaml:"type" mapstructure:"type"` // 指定字段类型，优先级高于数据库定义
-	Nullable   bool      `yaml:"nullable" mapstructure:"nullable"`
-	Optional   bool      `yaml:"optional" mapstructure:"optional"`
-	Comment    string    `yaml:"comment" mapstructure:"comment"`
-	Alias      string    `yaml:"alias" mapstructure:"alias"`
-	Skip       bool      `yaml:"skip" mapstructure:"skip"` // Skip 忽略表
-	Sortable   bool      `yaml:"sortable" mapstructure:"sortable"`
-	Filterable bool      `yaml:"filterable" mapstructure:"filterable"`
-	Operations []string  `yaml:"operations" mapstructure:"operations"`
-	Remote     bool      `yaml:"remote" mapstructure:"remote"`
-	Relation   *Relation `yaml:"relation" mapstructure:"relation"`
+	Name       string         `yaml:"name" mapstructure:"name"`
+	Type       Type           `yaml:"type" mapstructure:"type"` // 指定字段类型，优先级高于数据库定义
+	Nullable   bool           `yaml:"nullable" mapstructure:"nullable"`
+	Optional   bool           `yaml:"optional" mapstructure:"optional"`
+	Comment    string         `yaml:"comment" mapstructure:"comment"`
+	Alias      string         `yaml:"alias" mapstructure:"alias"`
+	Skip       bool           `yaml:"skip" mapstructure:"skip"` // Skip 忽略表
+	Sortable   bool           `yaml:"sortable" mapstructure:"sortable"`
+	Filterable *bool          `yaml:"filterable" mapstructure:"filterable"`
+	Operations []string       `yaml:"operations" mapstructure:"operations"`
+	Remote     bool           `yaml:"remote" mapstructure:"remote"`
+	Relation   *Relation      `yaml:"relation" mapstructure:"relation"`
+	Attrs      map[string]any `yaml:"attrs" mapstructure:"attrs"` // 其他配置项
 }
 
 // Relation represents	a Relation definition.
 type Relation struct {
-	Name      string     `yaml:"name" mapstructure:"name"`
-	Type      string     `yaml:"type" mapstructure:"type"`
-	Field     string     `yaml:"field" mapstructure:"field"`
-	RefTable  string     `yaml:"ref_table" mapstructure:"ref_table"`
-	RefField  string     `yaml:"ref_field" mapstructure:"ref_field"`
-	JoinTable *JoinTable `yaml:"join_table" mapstructure:"join_table"` // 当 Type 为 ManyToMany 时, JoinTable 不为空
-	Inverse   bool       `yaml:"inverse" mapstructure:"inverse"`
+	Name      string         `yaml:"name" mapstructure:"name"`
+	Type      string         `yaml:"type" mapstructure:"type"`
+	Field     string         `yaml:"field" mapstructure:"field"`
+	RefTable  string         `yaml:"ref_table" mapstructure:"ref_table"`
+	RefField  string         `yaml:"ref_field" mapstructure:"ref_field"`
+	JoinTable *JoinTable     `yaml:"join_table" mapstructure:"join_table"` // 当 Type 为 ManyToMany 时, JoinTable 不为空
+	Inverse   bool           `yaml:"inverse" mapstructure:"inverse"`
+	Attrs     map[string]any `yaml:"attrs" mapstructure:"attrs"` // 其他配置项
 }
 
 type JoinTable struct {
-	Name     string `yaml:"name" mapstructure:"name"`
-	Table    string `yaml:"table" mapstructure:"table"`
-	RefTable string `yaml:"ref_table" mapstructure:"ref_table"`
-	Field    string `yaml:"field" mapstructure:"field"`
-	RefField string `yaml:"ref_field" mapstructure:"ref_field"`
+	Name     string         `yaml:"name" mapstructure:"name"`
+	Table    string         `yaml:"table" mapstructure:"table"`
+	RefTable string         `yaml:"ref_table" mapstructure:"ref_table"`
+	Field    string         `yaml:"field" mapstructure:"field"`
+	RefField string         `yaml:"ref_field" mapstructure:"ref_field"`
+	Attrs    map[string]any `yaml:"attrs" mapstructure:"attrs"` // 其他配置项
 }

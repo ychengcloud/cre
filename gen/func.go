@@ -23,6 +23,7 @@ var (
 		"camel":    camel,
 		"plural":   plural,
 		"singular": singular,
+		"attrs":    attrs,
 	}
 	rules    = ruleset()
 	acronyms = make(map[string]struct{})
@@ -48,7 +49,6 @@ func ruleset() *inflect.Ruleset {
 //	[1]T      => t
 //	User      => u
 //	UserQuery => uq
-//
 func receiver(importPkg []string, s string) (r string) {
 	// Trim invalid tokens for identifier prefix.
 	s = strings.Trim(s, "[]*&0123456789")
@@ -116,7 +116,6 @@ func pascalWords(words []string) string {
 //	full_name 	=> FullName
 //	user_id   	=> UserId
 //	full-admin	=> FullAdmin
-//
 func pascal(s string) string {
 	words := strings.FieldsFunc(s, isSeparator)
 	return pascalWords(words)
@@ -128,7 +127,6 @@ func pascal(s string) string {
 //	full_name  => fullName
 //	user_id    => userId
 //	full-admin => fullAdmin
-//
 func camel(s string) string {
 	words := strings.FieldsFunc(s, isSeparator)
 	if len(words) == 1 {
@@ -142,7 +140,6 @@ func camel(s string) string {
 //	Username => username
 //	FullName => full_name
 //	HTTPCode => http_code
-//
 func snake(s string) string {
 	var (
 		j int
@@ -177,4 +174,14 @@ func contains(ops []spec.Op, str string) bool {
 	}
 
 	return false
+}
+
+func attrs(src []spec.Attribute, name string) (attr spec.Attribute) {
+	for _, attr := range src {
+		if attr.Name() == name {
+			return attr
+		}
+	}
+
+	return nil
 }

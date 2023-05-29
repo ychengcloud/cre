@@ -88,6 +88,8 @@ func TestMergeSchema(t *testing.T) {
 	// remote table don't add to schema
 	schema.AddTables(categoryTable, postTable, userTable, skipTable)
 
+	trueValue := true
+
 	tablesInCfg := []*Table{
 		{
 			Name: "category",
@@ -110,7 +112,7 @@ func TestMergeSchema(t *testing.T) {
 					Comment:    "post name",
 					Alias:      "postAlias",
 					Sortable:   true,
-					Filterable: true,
+					Filterable: &trueValue,
 					Operations: []string{"EQ", "In"},
 				},
 				{Name: "skip", Skip: true},

@@ -9,6 +9,8 @@ import (
 
 //go:generate go run ./
 func main() {
+	trueValue := true
+
 	cfg := &gen.Config{
 		Project: "testproject",
 		Package: "github.com/ychengcloud/cre",
@@ -72,7 +74,7 @@ func main() {
 			{
 				Name: "post",
 				Fields: []*gen.Field{
-					{Name: "id", Filterable: true, Operations: []string{"EQ", "In"}},
+					{Name: "id", Filterable: &trueValue, Operations: []string{"EQ", "In"}},
 					{
 						Name: "author",
 						Relation: &gen.Relation{

@@ -253,8 +253,8 @@ func mergeField(f *spec.Field, fc *Field) (*spec.Field, error) {
 	if fc.Sortable {
 		f.Sortable = fc.Sortable
 	}
-	if fc.Filterable {
-		f.Filterable = fc.Filterable
+	if fc.Filterable != nil {
+		f.Filterable = *fc.Filterable
 	}
 
 	f.Remote = fc.Remote
@@ -264,6 +264,11 @@ func mergeField(f *spec.Field, fc *Field) (*spec.Field, error) {
 		if f.Type == nil {
 			return nil, fmt.Errorf("unknown field type in config: %s", fc.Type)
 		}
+	}
+
+	for k, v := range fc.Attrs {
+		attr := NewAttr(k, v)
+		f.Attrs = append(f.Attrs, attr)
 	}
 
 	var err error
@@ -312,6 +317,12 @@ func mergeTable(t *spec.Table, tc *Table) (*spec.Table, error) {
 			return nil, err
 		}
 	}
+
+	for k, v := range tc.Attrs {
+		attr := NewAttr(k, v)
+		t.Attrs = append(t.Attrs, attr)
+	}
+
 	return t, nil
 }
 func mergeSchema(s *spec.Schema, tables []*Table) (*spec.Schema, error) {

@@ -117,9 +117,11 @@ type (
 
 	// Table represents a table definition.
 	Table struct {
-		Name   string
-		fields []*Field
-		ID     *Field
+		Name    string
+		Comment string
+		fields  []*Field
+		ID      *Field
+		Attrs   []Attribute
 
 		JoinTable bool
 
@@ -152,18 +154,18 @@ type (
 		Ops   []Op      `json:"ops,omitempty"`
 		Table *Table    `json:"table,omitempty"`
 
-		Attrs []*Attribute `json:"attrs,omitempty"`
+		Attrs []Attribute `json:"attrs,omitempty"`
 	}
 
 	// Relation represents	a Relation definition.
 	Relation struct {
-		Type      RelType      `json:"type,omitempty"`
-		Field     *Field       `json:"field,omitempty"`
-		RefTable  *Table       `json:"ref_table,omitempty"`
-		RefField  *Field       `json:"ref_field,omitempty"`
-		JoinTable *JoinTable   `json:"join_table,omitempty"`
-		Inverse   bool         `json:"inverse,omitempty"`
-		Attrs     []*Attribute `json:"attrs,omitempty"`
+		Type      RelType     `json:"type,omitempty"`
+		Field     *Field      `json:"field,omitempty"`
+		RefTable  *Table      `json:"ref_table,omitempty"`
+		RefField  *Field      `json:"ref_field,omitempty"`
+		JoinTable *JoinTable  `json:"join_table,omitempty"`
+		Inverse   bool        `json:"inverse,omitempty"`
+		Attrs     []Attribute `json:"attrs,omitempty"`
 	}
 
 	JoinTable struct {
@@ -295,7 +297,7 @@ func (fb *FieldBuilder) Table(table *Table) *FieldBuilder {
 	return fb
 }
 
-func (fb *FieldBuilder) Attrs(attrs ...*Attribute) *FieldBuilder {
+func (fb *FieldBuilder) Attrs(attrs ...Attribute) *FieldBuilder {
 	fb.field.Attrs = append(fb.field.Attrs, attrs...)
 	return fb
 }
