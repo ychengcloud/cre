@@ -1,3 +1,6 @@
 gen/test/*/actual
 
 dist
+
+cre
+cmd/cre/cre
