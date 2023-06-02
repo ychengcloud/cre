@@ -1,6 +1,10 @@
 package sql
 
-import "github.com/ychengcloud/cre/spec"
+import (
+	"database/sql"
+
+	"github.com/ychengcloud/cre/spec"
+)
 
 // ReferenceOption represents constraint actions.
 type ReferenceOption string
@@ -53,6 +57,7 @@ type (
 		Nullable      bool
 		Sensitive     bool
 		Comment       string
+		Default       sql.NullString
 		Charset       string
 		Collation     string
 		Precision     int

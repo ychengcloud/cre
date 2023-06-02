@@ -1,6 +1,7 @@
 package spec
 
 import (
+	"database/sql"
 	"strings"
 )
 
@@ -130,13 +131,14 @@ type (
 
 	// Field represents a Field definition.
 	Field struct {
-		Name      string `json:"name,omitempty"`
-		Type      Type   `json:"type,omitempty"`
-		Nullable  bool   `json:"nullable,omitempty"`
-		Optional  bool   `json:"optional,omitempty"`
-		Sensitive bool   `json:"sensitive,omitempty"`
-		Tag       string `json:"tag,omitempty"`
-		Comment   string `json:"comment,omitempty"`
+		Name      string         `json:"name,omitempty"`
+		Type      Type           `json:"type,omitempty"`
+		Nullable  bool           `json:"nullable,omitempty"`
+		Optional  bool           `json:"optional,omitempty"`
+		Sensitive bool           `json:"sensitive,omitempty"`
+		Tag       string         `json:"tag,omitempty"`
+		Comment   string         `json:"comment,omitempty"`
+		Default   sql.NullString `json:"default,omitempty"`
 
 		Alias      string `json:"alias,omitempty"`
 		Sortable   bool   `json:"sortable,omitempty"`
@@ -222,6 +224,11 @@ func (fb *FieldBuilder) Tag(tag string) *FieldBuilder {
 
 func (fb *FieldBuilder) Comment(comment string) *FieldBuilder {
 	fb.field.Comment = comment
+	return fb
+}
+
+func (fb *FieldBuilder) Default(d sql.NullString) *FieldBuilder {
+	fb.field.Default = d
 	return fb
 }
 

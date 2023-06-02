@@ -42,6 +42,7 @@ func (c *Column) convert() (*spec.Field, error) {
 		Type(c.Type).
 		Nullable(c.Nullable).
 		Comment(c.Comment).
+		Default(c.Default).
 		Unique(c.Unique).
 		PrimaryKey(c.Primary).
 		AutoIncrement(c.AutoIncrement).

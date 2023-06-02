@@ -193,6 +193,7 @@ func (i *inspect) columns(ctx context.Context, t *schema.Table) ([]*schema.Colum
 			Name:      name.String,
 			Type:      ct,
 			Comment:   comment.String,
+			Default:   defaults,
 			Nullable:  nullable.String == "YES",
 			Charset:   charset.String,
 			Collation: collation.String,
