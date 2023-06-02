@@ -2,6 +2,7 @@ package spec
 
 import (
 	"database/sql"
+	"sort"
 	"strings"
 )
 
@@ -139,6 +140,7 @@ type (
 		Tag       string         `json:"tag,omitempty"`
 		Comment   string         `json:"comment,omitempty"`
 		Default   sql.NullString `json:"default,omitempty"`
+		Order     int            `json:"order,omitempty"`
 
 		Alias      string `json:"alias,omitempty"`
 		Sortable   bool   `json:"sortable,omitempty"`
@@ -481,6 +483,15 @@ func (t *Table) AutoIncrement() bool {
 	}
 
 	return t.ID.AutoIncrement
+}
+
+func (t *Table) SortedFields() []*Field {
+	fields := make([]*Field, len(t.fields))
+	copy(fields, t.fields)
+	sort.Slice(fields, func(i, j int) bool {
+		return fields[i].Order > fields[j].Order
+	})
+	return fields
 }
 
 // RelNone returns true if the relation is none.

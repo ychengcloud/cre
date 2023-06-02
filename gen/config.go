@@ -83,6 +83,7 @@ type Field struct {
 	Nullable   bool           `yaml:"nullable" mapstructure:"nullable"`
 	Optional   bool           `yaml:"optional" mapstructure:"optional"`
 	Comment    string         `yaml:"comment" mapstructure:"comment"`
+	Order      int            `yaml:"order" mapstructure:"order"` // Order 字段顺序
 	Alias      string         `yaml:"alias" mapstructure:"alias"`
 	Skip       bool           `yaml:"skip" mapstructure:"skip"` // Skip 忽略表
 	Sortable   bool           `yaml:"sortable" mapstructure:"sortable"`

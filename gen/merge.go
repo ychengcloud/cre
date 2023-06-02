@@ -246,6 +246,9 @@ func mergeField(f *spec.Field, fc *Field) (*spec.Field, error) {
 	if len(fc.Comment) > 0 {
 		f.Comment = fc.Comment
 	}
+	if fc.Order > 0 {
+		f.Order = fc.Order
+	}
 	if len(fc.Alias) > 0 {
 		f.Alias = fc.Alias
 	}
