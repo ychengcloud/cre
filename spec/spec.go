@@ -488,7 +488,7 @@ func (t *Table) AutoIncrement() bool {
 func (t *Table) SortedFields() []*Field {
 	fields := make([]*Field, len(t.fields))
 	copy(fields, t.fields)
-	sort.Slice(fields, func(i, j int) bool {
+	sort.SliceStable(fields, func(i, j int) bool {
 		return fields[i].Order > fields[j].Order
 	})
 	return fields
