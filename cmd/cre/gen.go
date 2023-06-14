@@ -20,7 +20,7 @@ var configPath string
 var generateCmd = &cobra.Command{
 	Use:     "generate [flags]",
 	Short:   "generate go code for the database schema",
-	Example: `heidou generate -c ./config`,
+	Example: `cre generate -c ./config`,
 	Args: func(_ *cobra.Command, args []string) error {
 		return nil
 	},
