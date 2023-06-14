@@ -51,7 +51,7 @@ func Exist(f *ast.File, structName, fieldType, fieldName string) bool {
 	return found
 }
 
-//解析函数调用代码段
+// 解析函数调用代码段
 func extractFuncCallInFunc(stmts []ast.Stmt) (name string, body any) {
 	for _, stmt := range stmts {
 		log.Printf("stmt: %#v\n", stmt)

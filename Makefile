@@ -30,7 +30,7 @@ install: ; $(info $(M) installing …) @ ## Install program binary
 	$(GO) install ./cmd/$(APPNAME)/
 
 release: ; $(info $(M) releasing ...) @
-	$(RELEASER) release --rm-dist
+	$(RELEASER) release --clean
 
 # Tests
 

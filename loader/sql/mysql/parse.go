@@ -13,7 +13,8 @@ import (
 // 返回值全部为小写格式
 // If ext or attrs does not appear in the column definition, an empty slice is returned.
 // eg: TINYINT[(M)] [UNSIGNED] [ZEROFILL]
-//     colType ext   attr        attr
+//
+//	colType ext   attr        attr
 func parseTypeAttrs(colDef string) (colType string, ext []string, attrs []string, err error) {
 	colDef = strings.ToLower(colDef)
 	colDef = strings.TrimSpace(colDef)
