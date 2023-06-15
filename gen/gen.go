@@ -192,7 +192,11 @@ func (g *Generator) loadTemplates() error {
 func fileName(an assetName, format string) (string, error) {
 	b := bytes.NewBuffer(nil)
 
-	tlp := MustParse(template.New("assetName").Parse(format))
+	tlp := MustParse(
+		template.New("assetName").
+			Funcs(sprig.GenericFuncMap()).
+			Funcs(Funcs).
+			Parse(format))
 	if err := tlp.ExecuteTemplate(b, "assetName", an); err != nil {
 		return "", err
 	}
