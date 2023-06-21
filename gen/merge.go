@@ -48,7 +48,7 @@ func mergeJoinTable(f *spec.Field, joinTableInCfg *JoinTable) (*spec.Field, erro
 		return nil, fmt.Errorf("join table %s not found", joinTableInCfg.Name)
 	}
 
-	joinTable.JoinTable = true
+	joinTable.IsJoinTable = true
 
 	joinField := joinTable.GetField(joinTableInCfg.Field)
 	if joinField == nil {
@@ -60,11 +60,14 @@ func mergeJoinTable(f *spec.Field, joinTableInCfg *JoinTable) (*spec.Field, erro
 		return nil, fmt.Errorf("join ref field %s not found", joinTableInCfg.RefField)
 	}
 
-	f.Rel.JoinTable = &spec.JoinTable{
+	jt := &spec.JoinTable{
 		Name:         joinTableInCfg.Name,
 		JoinField:    joinField,
 		JoinRefField: joinRefField,
 	}
+
+	f.Rel.JoinTable = jt
+	joinTable.JoinTable = jt
 
 	return f, nil
 }

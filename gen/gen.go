@@ -47,6 +47,7 @@ type schemaData struct {
 type tableData struct {
 	*spec.Table
 
+	M2MField  *spec.Field
 	Generator *Generator
 	ImportPkg []string
 	Project   string
@@ -54,8 +55,8 @@ type tableData struct {
 }
 
 type file struct {
-	path string
-	data []byte
+	path    string
+	content []byte
 }
 type assets struct {
 	dirs  []string
@@ -123,9 +124,16 @@ func (g *Generator) Generate(ctx context.Context) error {
 		switch t.Mode {
 
 		case TplModeMulti:
-			if err := g.generateMulti(t); err != nil {
-				return err
+			if t.M2M {
+				if err := g.generateM2M(t); err != nil {
+					return err
+				}
+			} else {
+				if err := g.generateMulti(t); err != nil {
+					return err
+				}
 			}
+
 		default:
 			if err := g.generateSingle(t); err != nil {
 				return err
@@ -189,7 +197,7 @@ func (g *Generator) loadTemplates() error {
 	return nil
 }
 
-func fileName(an assetName, format string) (string, error) {
+func fileName(format string, data any) (string, error) {
 	b := bytes.NewBuffer(nil)
 
 	tlp := MustParse(
@@ -197,15 +205,15 @@ func fileName(an assetName, format string) (string, error) {
 			Funcs(sprig.GenericFuncMap()).
 			Funcs(Funcs).
 			Parse(format))
-	if err := tlp.ExecuteTemplate(b, "assetName", an); err != nil {
+	if err := tlp.ExecuteTemplate(b, "assetName", data); err != nil {
 		return "", err
 	}
 
 	return b.String(), nil
 }
 
-func (g *Generator) file(an assetName, t *Template, data []byte) error {
-	name, err := fileName(an, t.Format)
+func (g *Generator) file(t *Template, data any, content []byte) error {
+	name, err := fileName(t.Format, data)
 	if err != nil {
 		return err
 	}
@@ -213,12 +221,12 @@ func (g *Generator) file(an assetName, t *Template, data []byte) error {
 	d := path.Dir(name)
 
 	if d != "." && d != "/" {
-		g.assets.dirs = append(g.assets.dirs, path.Join(an.Path, d))
+		g.assets.dirs = append(g.assets.dirs, path.Join(t.GenPath, d))
 	}
 
 	g.assets.files = append(g.assets.files, file{
-		path: filepath.Join(g.Cfg.GenRoot, t.GenPath, name),
-		data: data,
+		path:    filepath.Join(g.Cfg.GenRoot, t.GenPath, name),
+		content: content,
 	})
 	return nil
 }
@@ -282,13 +290,7 @@ func (g *Generator) generateSingle(tplCfg *Template) error {
 		return err
 	}
 
-	an := assetName{
-		Package: g.Cfg.Package,
-		Schema:  g.schema.Name,
-		Path:    tplCfg.GenPath,
-	}
-
-	if err := g.file(an, tplCfg, b.Bytes()); err != nil {
+	if err := g.file(tplCfg, &s, b.Bytes()); err != nil {
 		return err
 	}
 
@@ -297,9 +299,11 @@ func (g *Generator) generateSingle(tplCfg *Template) error {
 
 func (g *Generator) generateMulti(tplCfg *Template) error {
 
-	var err error
-
 	g.assets.dirs = append(g.assets.dirs, filepath.Join(g.Cfg.GenRoot, tplCfg.GenPath))
+
+	if tplCfg.M2M {
+		return fmt.Errorf("Is m2m template ? %s : %s", tplCfg.Path, tplCfg.Format)
+	}
 
 	for _, table := range g.schema.Tables() {
 		td := tableData{
@@ -309,38 +313,73 @@ func (g *Generator) generateMulti(tplCfg *Template) error {
 			Generator: g,
 		}
 
-		b := bytes.NewBuffer(nil)
-
-		t, ok := g.templates[tplCfg.Path]
-		if !ok {
-			return fmt.Errorf("generateMulti load template %s fail", tplCfg.Path)
-		}
-
-		if err := t.Execute(b, td); err != nil {
-			return fmt.Errorf("generateMulti Execute : %s : %s", tplCfg.Path, err.Error())
-		}
-		ext := filepath.Ext(tplCfg.Format)
-		if ext == ".go" {
-			if td.ImportPkg, err = goImportPkgs(b); err != nil {
-				return fmt.Errorf("generateMulti import pkgs : %s : %s", tplCfg.Path, err.Error())
-			}
-		}
-
-		b.Reset()
-		if err := t.Execute(b, td); err != nil {
-			return err
-		}
-		an := assetName{
-			Package: g.Cfg.Package,
-			Schema:  g.schema.Name,
-			Table:   table.Name,
-			Path:    tplCfg.GenPath,
-		}
-
-		if err := g.file(an, tplCfg, b.Bytes()); err != nil {
+		if err := render(g, tplCfg, &td); err != nil {
 			return err
 		}
 	}
+	return nil
+}
+
+// 处理 Many To Many 字段
+func (g *Generator) generateM2M(tplCfg *Template) error {
+
+	g.assets.dirs = append(g.assets.dirs, filepath.Join(g.Cfg.GenRoot, tplCfg.GenPath))
+
+	if !tplCfg.M2M {
+		return fmt.Errorf("Is not m2m template ? %s : %s", tplCfg.Path, tplCfg.Format)
+	}
+
+	for _, table := range g.schema.Tables() {
+		for _, field := range table.SortedFields() {
+			if !field.RelManyToMany() {
+				continue
+			}
+			td := tableData{
+				Table:     table,
+				M2MField:  field,
+				Project:   g.Cfg.Project,
+				Package:   g.Cfg.Package,
+				Generator: g,
+			}
+
+			if err := render(g, tplCfg, &td); err != nil {
+				return err
+			}
+		}
+
+	}
+	return nil
+}
+
+func render(g *Generator, tplCfg *Template, td *tableData) error {
+
+	b := bytes.NewBuffer(nil)
+
+	t, ok := g.templates[tplCfg.Path]
+	if !ok {
+		return fmt.Errorf("generateMulti load template %s fail", tplCfg.Path)
+	}
+
+	if err := t.Execute(b, td); err != nil {
+		return fmt.Errorf("generateMulti Execute : %s : %s", tplCfg.Path, err.Error())
+	}
+	ext := filepath.Ext(tplCfg.Format)
+	if ext == ".go" {
+		var err error
+		if td.ImportPkg, err = goImportPkgs(b); err != nil {
+			return fmt.Errorf("generateMulti import pkgs : %s : %s", tplCfg.Path, err.Error())
+		}
+	}
+
+	b.Reset()
+	if err := t.Execute(b, td); err != nil {
+		return err
+	}
+
+	if err := g.file(tplCfg, td, b.Bytes()); err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -381,7 +420,7 @@ func (a assets) write() error {
 		}
 	}
 	for _, f := range a.files {
-		if err := os.WriteFile(f.path, f.data, 0644); err != nil {
+		if err := os.WriteFile(f.path, f.content, 0644); err != nil {
 			return fmt.Errorf("write file %q: %w", f.path, err)
 		}
 	}
@@ -391,26 +430,26 @@ func (a assets) write() error {
 func (a assets) format() error {
 	for _, file := range a.files {
 		path := file.path
-		data := file.data
+		content := file.content
 		ext := filepath.Ext(path)
 
 		var err error
 
 		switch ext {
 		case ".go":
-			data, err = imports.Process(path, file.data, nil)
+			content, err = imports.Process(path, file.content, nil)
 			if err != nil {
 				return fmt.Errorf("format file %s: %v", path, err)
 			}
 		case ".proto":
 			transformer := proto.NewTransformer()
-			data, _, err = transformer.Transform(file.path, file.data)
+			content, _, err = transformer.Transform(file.path, file.content)
 			if err != nil {
 				return fmt.Errorf("format file %s: %v", path, err)
 			}
 		}
 
-		if err := os.WriteFile(path, data, 0644); err != nil {
+		if err := os.WriteFile(path, content, 0644); err != nil {
 			return fmt.Errorf("write file %s: %v", path, err)
 		}
 	}

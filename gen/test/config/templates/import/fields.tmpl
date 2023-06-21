@@ -1,3 +1,29 @@
-{{- range . }}
-	{{if or .RelHasMany .RelManyToMany }}{{ pascal .Name | plural }}  []{{else}}{{ pascal .Name }} {{end}}{{if not .RelNone}}*{{end}}{{ .Type.Kind }}
-{{- end }}
+{{ range . }}
+	{{- if not .Remote }}
+		{{- $name := (.Name | pascal) }}
+		{{- $type := ""}}
+		{{- $tags := (printf "json:\"%s,omitempty\"" (.Name | camel))}}
+
+		{{- if .RelNone}}
+			{{- $type = .Type.Kind }}
+			{{- if eq $type "json" }}
+				{{- $type = "JSON" }}
+			{{- end }}
+		{{- end }}
+			
+		{{- if or .RelBelongsTo .RelHasOne }}
+			{{- $name = .Name | pascal }}
+			{{- $type = (printf "%s%s" "*" ( .Rel.RefTable.Name | pascal ) )}}
+		{{- end}}
+
+		{{- if or .RelHasMany .RelManyToMany }}
+			{{- $name = .Name | pascal | plural }}
+			{{- $type = (printf "%s%s" "[]*" ( .Rel.RefTable.Name | pascal ) )}}
+			{{- $tags = (printf "json:\"%s\"" (.Name | camel | plural))}}
+		{{- end}}
+
+		{{- if not .PrimaryKey }}
+			{{- $name}} {{$type}} `{{$tags}}`
+		{{- end }}
+	{{- end }}
+{{ end }}

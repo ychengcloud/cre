@@ -1,16 +1,21 @@
 package multi
 {{ $importPkg := .ImportPkg }}
-{{ $table := .Name }}
+{{ $g := .Generator }}
+{{ $table := . }}
 
-type {{ pascal .Name }} struct {
-	{{- range .Fields }}
-        {{if or .RelHasMany .RelManyToMany }}{{ pascal .Name | plural }}  []{{else}}{{ pascal .Name }} {{end}}{{if not .RelNone}}*{{end}}{{ .Type.Kind }}
-	{{- end }}
+type {{ pascal $table.Name }} struct {
+    {{- if $table.AutoIncrement }}
+        Node
+    {{- else }}
+        {{ $table.ID.Name | pascal }} {{ $table.ID.Type.Kind }} `json:"{{ $table.ID.Name | camel }}"`
+    {{- end }}
+
+    {{ $g.Template "import/fields.tmpl" $table.Fields }}
 }
 
-func ({{ receiver  $importPkg $table }} *{{ pascal $table }}) Ops(name string) []string{
+func ({{ receiver  $importPkg $table.Name }} *{{ pascal $table.Name }}) Ops(name string) []string{
     switch name {
-        {{- range $f := .Fields }}
+        {{- range $f := $table.Fields }}
             case "{{if or .RelHasMany .RelManyToMany }}{{ camel $f.Name | plural }}{{else}}{{ camel .Name }}{{end}}":
                 return []string{
                     {{- range $op := $f.Ops }}
@@ -23,6 +28,6 @@ func ({{ receiver  $importPkg $table }} *{{ pascal $table }}) Ops(name string) [
     }
 }
 
-func ({{ receiver  $importPkg $table }} *{{ pascal .Name }}) GetName() string {
+func ({{ receiver  $importPkg $table.Name }} *{{ pascal $table.Name }}) GetName() string {
     return "{{.Name}}"
 }

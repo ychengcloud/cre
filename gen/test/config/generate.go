@@ -22,32 +22,40 @@ func main() {
 			{
 				Path:    "single.go.tmpl",
 				GenPath: ".",
-				Format:  "{{.Schema}}.go",
+				Format:  "{{.Schema.Name}}.go",
 				Mode:    gen.TplModeSingle,
 			},
 			{
 				Path:    "multi.tmpl",
 				GenPath: "multi",
-				Format:  "{{.Table}}.go",
+				Format:  "{{.Table.Name}}.go",
 				Mode:    gen.TplModeMulti,
 			},
 			{
 				Path:    "path/path.tmpl",
 				GenPath: "path",
-				Format:  "{{.Schema}}.go",
+				Format:  "{{.Schema.Name}}.go",
 				Mode:    gen.TplModeSingle,
 			},
 			{
 				Path:    "format/go.tmpl",
 				GenPath: "format",
-				Format:  "{{.Schema}}.go",
+				Format:  "{{.Schema.Name}}.go",
 				Mode:    gen.TplModeSingle,
 			},
 			{
 				Path:    "format/proto.tmpl",
 				GenPath: "format",
-				Format:  "{{.Schema}}.proto",
+				Format:  "{{.Schema.Name}}.proto",
 				Mode:    gen.TplModeSingle,
+			},
+			// m2m 类型
+			{
+				Path:    "assign.tmpl",
+				GenPath: "assign",
+				Format:  "{{.Table.Name | camel }}{{.M2MField.Name | pascal }}.html",
+				Mode:    gen.TplModeMulti,
+				M2M:     true,
 			},
 		},
 
@@ -95,6 +103,20 @@ func main() {
 								Name:     "post_category",
 								Field:    "post_id",
 								RefField: "category_id",
+							},
+						},
+					},
+					{
+						Name: "tag",
+						Relation: &gen.Relation{
+							Name:     "Tag",
+							Type:     "ManyToMany",
+							RefTable: "tag",
+							RefField: "id",
+							JoinTable: &gen.JoinTable{
+								Name:     "post_tag",
+								Field:    "post_id",
+								RefField: "tag_id",
 							},
 						},
 					},

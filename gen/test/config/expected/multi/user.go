@@ -1,9 +1,10 @@
 package multi
 
 type User struct {
-	Id    int32
-	Name  string
-	Posts []*Post
+	Id int32 `json:"id"`
+
+	Name  string  `json:"name,omitempty"`
+	Posts []*Post `json:"posts"`
 }
 
 func (u *User) Ops(name string) []string {

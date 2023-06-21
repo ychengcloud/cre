@@ -1,0 +1,7 @@
+{{- $g := .Generator -}}
+{{- $table := . -}}
+
+{{ $table.Name }}
+{{- range $table.SortedFields }}
+    {{ .Name }}
+{{- end }}

@@ -11,6 +11,12 @@ import (
 
 {{- range .Tables }}
     type {{ pascal .Name }} struct {
+        {{- if .AutoIncrement }}
+            Node
+        {{- else }}
+            {{ .ID.Name | pascal }} {{ .ID.Type.Kind }} `json:"{{ .ID.Name | camel }}"`
+        {{- end }}
+
         {{ $g.Template "import/fields.tmpl" .Fields }}
         p path.Test
     }

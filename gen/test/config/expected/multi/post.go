@@ -1,10 +1,12 @@
 package multi
 
 type Post struct {
-	Id         int32
-	Name       string
-	Author     *User
-	Categories []*Category
+	Id int32 `json:"id"`
+
+	Name       string      `json:"name,omitempty"`
+	Author     *User       `json:"author,omitempty"`
+	Categories []*Category `json:"categories"`
+	Tags       []*Tag      `json:"tags"`
 }
 
 func (p *Post) Ops(name string) []string {
@@ -19,6 +21,8 @@ func (p *Post) Ops(name string) []string {
 	case "author":
 		return []string{}
 	case "categories":
+		return []string{}
+	case "tags":
 		return []string{}
 	default:
 		return []string{}

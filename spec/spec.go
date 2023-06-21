@@ -125,7 +125,8 @@ type (
 		ID      *Field
 		Attrs   []Attribute
 
-		JoinTable bool
+		IsJoinTable bool
+		JoinTable   *JoinTable
 
 		Schema *Schema
 	}
@@ -319,7 +320,7 @@ func (fb *FieldBuilder) Build() *Field {
 func (s *Schema) Tables() []*Table {
 	tables := make([]*Table, 0)
 	for _, t := range s.tables {
-		if !t.JoinTable {
+		if !t.IsJoinTable {
 			tables = append(tables, t)
 		}
 	}
@@ -340,7 +341,7 @@ func (s *Schema) Table(name string) *Table {
 func (s *Schema) JoinTables() []*Table {
 	tables := make([]*Table, 0)
 	for _, t := range s.tables {
-		if t.JoinTable {
+		if t.IsJoinTable {
 			tables = append(tables, t)
 		}
 	}
@@ -350,7 +351,7 @@ func (s *Schema) JoinTables() []*Table {
 // JoinTable returns the table with the given name.
 func (s *Schema) JoinTable(name string) *Table {
 	for _, t := range s.tables {
-		if t.Name == name && t.JoinTable {
+		if t.Name == name && t.IsJoinTable {
 			return t
 		}
 	}

@@ -67,6 +67,10 @@ test-coverage: fmt vet test-coverage-tools ; $(info $(M) running coverage testsâ
 		-coverprofile="$(COVERAGE_PROFILE)" $(TESTPKGS)
 	$(GO) tool cover -html=$(COVERAGE_PROFILE) -o $(COVERAGE_HTML)
 
+.PHONY: test-gen
+test-gen:
+	go generate ./...
+	
 .PHONY: vet
 vet:  ; $(info $(M) running go vet ...) @ ## Run go vet
 	$(GO) vet $(PKGS)

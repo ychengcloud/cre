@@ -7,6 +7,13 @@ func (c *Category) GetName() string {
 	return "category"
 }
 
+type Tag struct {
+}
+
+func (t *Tag) GetName() string {
+	return "tag"
+}
+
 type Post struct {
 }
 

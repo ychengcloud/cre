@@ -40,6 +40,29 @@ service {{ .Project }}Service {
                 };
             }
         {{- end}}
+
+        {{- if $f.RelManyToMany }}
+            rpc {{ $table.Name | pascal | plural }}AssignWith{{ $f.Name | pascal | plural }}({{ $table.Name | pascal | plural }}AssignWith{{ $f.Name | pascal | plural }}Request) returns (google.protobuf.Empty) {
+                option (google.api.http) = {
+                    post: "/api/v1/{{ $table.Name | camel | plural }}/{ {{- $f.Rel.JoinTable.JoinField.Name | snake -}} }/{{ $f.Name | camel | plural}}:assign"
+                    body: "*"
+                };
+            }
+
+            rpc {{ $table.Name | pascal | plural }}UnassignWith{{ $f.Name | pascal | plural }}({{ $table.Name | pascal | plural }}UnassignWith{{ $f.Name | pascal | plural }}Request) returns (google.protobuf.Empty) {
+                option (google.api.http) = {
+                    post: "/api/v1/{{ $table.Name | camel | plural }}/{ {{- $f.Rel.JoinTable.JoinField.Name | snake -}} }/{{ $f.Name | camel | plural}}:unassign"
+                    body: "*"
+                };
+            }
+            {{- if $f.Remote }}
+                rpc List{{ $f.Rel.JoinTable.JoinRefField.Name | pascal | plural }}With{{ $f.Rel.JoinTable.JoinField.Name | pascal }}(List{{ $f.Rel.JoinTable.JoinRefField.Name | pascal | plural }}With{{ $f.Rel.JoinTable.JoinField.Name | pascal }}Request) returns (List{{ $f.Rel.JoinTable.JoinRefField.Name | pascal | plural }}With{{ $f.Rel.JoinTable.JoinField.Name | pascal }}Response) {
+                    option (google.api.http) = {
+                        get: "/api/v1/{{ $table.Name | camel | plural }}/{ {{- $f.Rel.JoinTable.JoinField.Name | snake -}} }/{{ $f.Rel.JoinTable.JoinRefField.Name | camel | plural }}"
+                    };
+                }
+            {{- end }}
+        {{- end}}
     {{- end}}
 
 {{- end}}

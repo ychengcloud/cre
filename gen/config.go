@@ -68,6 +68,8 @@ type Template struct {
 	// 默认: single 模式下, 所有表数据生成一个文件
 	// multi 模式下, 每个表数据生成一个文件
 	Mode string `yaml:"mode" mapstructure:"mode"`
+	// M2M 是否 Many To Many 模板
+	M2M bool `yaml:"m2m" mapstructure:"m2m"`
 }
 
 type Table struct {

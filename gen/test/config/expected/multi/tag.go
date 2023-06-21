@@ -1,12 +1,12 @@
 package multi
 
-type Category struct {
+type Tag struct {
 	Id int32 `json:"id"`
 
 	Name string `json:"name,omitempty"`
 }
 
-func (c *Category) Ops(name string) []string {
+func (t *Tag) Ops(name string) []string {
 	switch name {
 	case "id":
 		return []string{}
@@ -17,6 +17,6 @@ func (c *Category) Ops(name string) []string {
 	}
 }
 
-func (c *Category) GetName() string {
-	return "category"
+func (t *Tag) GetName() string {
+	return "tag"
 }

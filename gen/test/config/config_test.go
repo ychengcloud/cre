@@ -17,6 +17,8 @@ func TestConfig(t *testing.T) {
 		"path/test.go",
 		"format/test.go",
 		"format/test.proto",
+		"assign/postCategory.html",
+		"assign/postTag.html",
 	}
 	r := require.New(t)
 
