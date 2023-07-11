@@ -318,13 +318,7 @@ func (fb *FieldBuilder) Build() *Field {
 
 // Tables 返回非关联表的 Table 列表
 func (s *Schema) Tables() []*Table {
-	tables := make([]*Table, 0)
-	for _, t := range s.tables {
-		if !t.IsJoinTable {
-			tables = append(tables, t)
-		}
-	}
-	return tables
+	return s.tables
 }
 
 // Table return the table with the given name.
@@ -335,6 +329,17 @@ func (s *Schema) Table(name string) *Table {
 		}
 	}
 	return nil
+}
+
+// Tables 返回非关联表的 Table 列表
+func (s *Schema) NoJoinTables() []*Table {
+	tables := make([]*Table, 0)
+	for _, t := range s.tables {
+		if !t.IsJoinTable {
+			tables = append(tables, t)
+		}
+	}
+	return tables
 }
 
 // JoinTables 返回所有关联表
