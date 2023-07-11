@@ -84,6 +84,12 @@ func TestMain(m *testing.M) {
 func TestMergeSchema(t *testing.T) {
 	schema := &spec.Schema{
 		Name: "test",
+		Attrs: []spec.Attribute{
+			&Attr{
+				name:  "test",
+				value: "value",
+			},
+		},
 	}
 	// remote table don't add to schema
 	schema.AddTables(categoryTable, postTable, userTable, skipTable)
@@ -125,7 +131,14 @@ func TestMergeSchema(t *testing.T) {
 		{Name: "user"},
 	}
 
-	s, err := mergeSchema(schema, tablesInCfg)
+	cfg := &Config{
+		Tables: tablesInCfg,
+		Attrs: map[string]any{
+			"test": "value",
+		},
+	}
+
+	s, err := mergeSchema(schema, cfg)
 	r := require.New(t)
 	r.NoError(err)
 	r.NotNil(s)

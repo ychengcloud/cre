@@ -331,12 +331,17 @@ func mergeTable(t *spec.Table, tc *Table) (*spec.Table, error) {
 
 	return t, nil
 }
-func mergeSchema(s *spec.Schema, tables []*Table) (*spec.Schema, error) {
+func mergeSchema(s *spec.Schema, cfg *Config) (*spec.Schema, error) {
 	if s == nil {
 		return nil, fmt.Errorf("schema is nil")
 	}
 
-	for _, tc := range tables {
+	for k, v := range cfg.Attrs {
+		attr := NewAttr(k, v)
+		s.Attrs = append(s.Attrs, attr)
+	}
+
+	for _, tc := range cfg.Tables {
 		if tc.Skip {
 			s.RemoveTable(tc.Name)
 			continue

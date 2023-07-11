@@ -15,11 +15,12 @@ import (
 	"text/template"
 
 	"github.com/Masterminds/sprig/v3"
+	bufparser "github.com/bufbuild/protocompile/parser"
+	"github.com/bufbuild/protocompile/reporter"
 	"github.com/go-sql-driver/mysql"
 	"golang.org/x/tools/imports"
 
 	"github.com/ychengcloud/cre"
-	"github.com/ychengcloud/cre/gen/proto"
 	"github.com/ychengcloud/cre/spec"
 )
 
@@ -111,7 +112,7 @@ func (g *Generator) Generate(ctx context.Context) error {
 	if err != nil {
 		return err
 	}
-	g.schema, err = mergeSchema(g.schema, g.Cfg.Tables)
+	g.schema, err = mergeSchema(g.schema, g.Cfg)
 	if err != nil {
 		return err
 	}
@@ -427,6 +428,33 @@ func (a assets) write() error {
 	return nil
 }
 
+func (a assets) formatProto(path string) error {
+	f, err := os.Open(path)
+	if err != nil {
+		return err
+	}
+
+	fileNode, err := bufparser.Parse("", f, reporter.NewHandler(nil))
+	if err != nil {
+		return err
+	}
+
+	f.Close()
+
+	f, err = os.OpenFile(path, os.O_TRUNC|os.O_CREATE|os.O_WRONLY, 0644)
+	if err != nil {
+		return err
+	}
+
+	defer f.Close()
+
+	if err := newFormatter(f, fileNode).Run(); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (a assets) format() error {
 	for _, file := range a.files {
 		path := file.path
@@ -441,18 +469,15 @@ func (a assets) format() error {
 			if err != nil {
 				return fmt.Errorf("format file %s: %v", path, err)
 			}
+			if err := os.WriteFile(path, content, 0644); err != nil {
+				return fmt.Errorf("write file %s: %v", path, err)
+			}
 		case ".proto":
-			transformer := proto.NewTransformer()
-			content, _, err = transformer.Transform(file.path, file.content)
-			if err != nil {
-				return fmt.Errorf("format file %s: %v", path, err)
+			if err := a.formatProto(path); err != nil {
+				return fmt.Errorf("write file %s: %v", path, err)
 			}
 		}
 
-		if err := os.WriteFile(path, content, 0644); err != nil {
-			return fmt.Errorf("write file %s: %v", path, err)
-		}
 	}
-
 	return nil
 }

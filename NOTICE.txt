@@ -1,5 +1,5 @@
-gen/proto
-Copyright (c) 2020 Uber Technologies, Inc.
+gen/formatter.go
+Copyright 2020-2023 Buf Technologies, Inc.
 
 loader/sql/mysql/mysql.go
 loader/sql/postgres/postgres.go
