@@ -524,3 +524,11 @@ func (f *Field) RelHasMany() bool {
 func (f *Field) RelManyToMany() bool {
 	return f.Rel != nil && f.Rel.Type == RelTypeManyToMany
 }
+
+// NameOrAlias returns the alias if it is not empty, otherwise returns the name.
+func (f *Field) NameOrAlias() string {
+	if f.Alias != "" {
+		return f.Alias
+	}
+	return f.Name
+}
