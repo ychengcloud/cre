@@ -1,6 +1,9 @@
 package spec
 
-import "reflect"
+import (
+	"reflect"
+	"strings"
+)
 
 // Type represents a field type definition.
 type Type interface {
@@ -178,8 +181,13 @@ func (*StringType) Kind() string {
 func (*EnumType) Kind() string {
 	return reflect.String.String()
 }
-func (*TimeType) Kind() string {
-	return "time.Time"
+func (t *TimeType) Kind() string {
+	switch strings.ToLower(t.Name) {
+	case "date", "time":
+		return "string"
+	default:
+		return "time.Time"
+	}
 }
 
 func (*UUIDType) Kind() string {
@@ -240,8 +248,13 @@ func (*StringType) ProtobufKind() string {
 func (*EnumType) ProtobufKind() string {
 	return "string"
 }
-func (*TimeType) ProtobufKind() string {
-	return "google.protobuf.Timestamp"
+func (t *TimeType) ProtobufKind() string {
+	switch strings.ToLower(t.Name) {
+	case "date", "time":
+		return "string"
+	default:
+		return "google.protobuf.Timestamp"
+	}
 }
 func (s *SpatialType) ProtobufKind() string {
 	return s.Name
