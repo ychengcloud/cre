@@ -61,41 +61,41 @@ func testMainWrapper(m *testing.M) int {
 	pgExpected.AddTables(pgNumericTable, pgStringTable, pgTimeTable, pgBinaryTable, pgSpatialable, pgEnumTable, pgFK1Table, pgFK2Table)
 
 	pgNumericTable.AddFields([]*spec.Field{
-		{Name: "smallint", Type: &spec.IntegerType{Name: "smallint", Size: 16}, Nullable: false},
-		{Name: "smallint1", Type: &spec.IntegerType{Name: "smallint", Size: 16}, Nullable: true},
-		{Name: "smallint2", Type: &spec.IntegerType{Name: "smallint", Size: 16}, Comment: "smallint comment", Nullable: true, Unique: true},
-		{Name: "smallint3", Type: &spec.IntegerType{Name: "smallint", Size: 16}, Nullable: true},
-		{Name: "integer", Type: &spec.IntegerType{Name: "integer", Size: 32}, Nullable: true},
-		{Name: "bigint", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: true},
-		{Name: "boolean", Type: &spec.BoolType{Name: "boolean"}, Nullable: true},
-		{Name: "numeric", Type: &spec.FloatType{Name: "numeric"}, Nullable: true},
-		{Name: "real", Type: &spec.FloatType{Name: "real", Precision: 24}, Nullable: true},
-		{Name: "double precision", Type: &spec.FloatType{Name: "double precision", Precision: 53}, Nullable: true},
-		{Name: "money", Type: &spec.FloatType{Name: "money"}, Nullable: true},
+		{Name: "smallint", Type: &spec.IntegerType{Name: "smallint", Size: 16}, Nullable: false, Ops: spec.NumericOps},
+		{Name: "smallint1", Type: &spec.IntegerType{Name: "smallint", Size: 16}, Nullable: true, Ops: spec.NumericOps},
+		{Name: "smallint2", Type: &spec.IntegerType{Name: "smallint", Size: 16}, Comment: "smallint comment", Nullable: true, Index: true, Unique: true, Filterable: true, Ops: spec.NumericOps},
+		{Name: "smallint3", Type: &spec.IntegerType{Name: "smallint", Size: 16}, Nullable: true, Ops: spec.NumericOps},
+		{Name: "integer", Type: &spec.IntegerType{Name: "integer", Size: 32}, Nullable: true, Ops: spec.NumericOps},
+		{Name: "bigint", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: true, Ops: spec.NumericOps},
+		{Name: "boolean", Type: &spec.BoolType{Name: "boolean"}, Nullable: true, Ops: spec.BoolOps},
+		{Name: "numeric", Type: &spec.FloatType{Name: "numeric"}, Nullable: true, Ops: spec.NumericOps},
+		{Name: "real", Type: &spec.FloatType{Name: "real", Precision: 24}, Nullable: true, Ops: spec.NumericOps},
+		{Name: "double precision", Type: &spec.FloatType{Name: "double precision", Precision: 53}, Nullable: true, Ops: spec.NumericOps},
+		{Name: "money", Type: &spec.FloatType{Name: "money"}, Nullable: true, Ops: spec.NumericOps},
 	}...)
 
 	pgStringTable.AddFields([]*spec.Field{
 		{Name: "bit", Type: &spec.BitType{Name: "bit", Len: 1}},
 		{Name: "bit varying", Type: &spec.BitType{Name: "bit varying", Len: 255}},
-		{Name: "character", Type: &spec.StringType{Name: "character", Size: 1}},
-		{Name: "character varying", Type: &spec.StringType{Name: "character varying"}},
-		{Name: "character varying255", Type: &spec.StringType{Name: "character varying", Size: 255}},
-		{Name: "text", Type: &spec.StringType{Name: "text"}},
+		{Name: "character", Type: &spec.StringType{Name: "character", Size: 1}, Ops: spec.StringOps},
+		{Name: "character varying", Type: &spec.StringType{Name: "character varying"}, Ops: spec.StringOps},
+		{Name: "character varying255", Type: &spec.StringType{Name: "character varying", Size: 255}, Ops: spec.StringOps},
+		{Name: "text", Type: &spec.StringType{Name: "text"}, Ops: spec.StringOps},
 
-		{Name: "tsquery", Type: &spec.StringType{Name: "tsquery"}},
-		{Name: "tsvector", Type: &spec.StringType{Name: "tsvector"}},
-		{Name: "uuid", Type: &spec.StringType{Name: "uuid"}},
-		{Name: "xml", Type: &spec.StringType{Name: "xml"}},
+		{Name: "tsquery", Type: &spec.StringType{Name: "tsquery"}, Ops: spec.StringOps},
+		{Name: "tsvector", Type: &spec.StringType{Name: "tsvector"}, Ops: spec.StringOps},
+		{Name: "uuid", Type: &spec.StringType{Name: "uuid"}, Ops: spec.StringOps},
+		{Name: "xml", Type: &spec.StringType{Name: "xml"}, Ops: spec.StringOps},
 		{Name: "json", Type: &spec.JSONType{Name: "json"}},
 		{Name: "jsonb", Type: &spec.JSONType{Name: "jsonb"}},
 	}...)
 
 	pgTimeTable.AddFields([]*spec.Field{
-		{Name: "date", Type: &spec.TimeType{Name: "date"}},
-		{Name: "time", Type: &spec.TimeType{Name: "time without time zone"}},
-		{Name: "timestamp", Type: &spec.TimeType{Name: "timestamp without time zone"}},
-		{Name: "timestamptz", Type: &spec.TimeType{Name: "timestamp with time zone"}},
-		{Name: "interval", Type: &spec.TimeType{Name: "interval"}},
+		{Name: "date", Type: &spec.TimeType{Name: "date"}, Ops: spec.NumericOps},
+		{Name: "time", Type: &spec.TimeType{Name: "time without time zone"}, Ops: spec.NumericOps},
+		{Name: "timestamp", Type: &spec.TimeType{Name: "timestamp without time zone"}, Ops: spec.NumericOps},
+		{Name: "timestamptz", Type: &spec.TimeType{Name: "timestamp with time zone"}, Ops: spec.NumericOps},
+		{Name: "interval", Type: &spec.TimeType{Name: "interval"}, Ops: spec.NumericOps},
 	}...)
 
 	pgBinaryTable.AddFields([]*spec.Field{
@@ -116,17 +116,17 @@ func testMainWrapper(m *testing.M) int {
 	}...)
 
 	pgEnumTable.AddFields([]*spec.Field{
-		{Name: "enum", Type: &spec.EnumType{Name: "mood", Values: []string{"sad", "ok", "happy"}}, Nullable: true},
+		{Name: "enum", Type: &spec.EnumType{Name: "mood", Values: []string{"sad", "ok", "happy"}}, Nullable: true, Ops: spec.EnumOps},
 	}...)
 
 	pgFK1Table.AddFields([]*spec.Field{
-		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
-		{Name: "fkid", Type: &spec.IntegerType{Name: "bigint", Size: 64}, ForeignKey: true},
+		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Index: true, Unique: true, Filterable: true, Sortable: true, Ops: spec.NumericOps},
+		{Name: "fkid", Type: &spec.IntegerType{Name: "bigint", Size: 64}, ForeignKey: true, Ops: spec.NumericOps},
 	}...)
 	pgFK1Table.ID = pgFK1Table.GetField("id")
 
 	pgFK2Table.AddFields([]*spec.Field{
-		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
+		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Index: true, Unique: true, Filterable: true, Sortable: true, Ops: spec.NumericOps},
 	}...)
 	pgFK2Table.ID = pgFK2Table.GetField("id")
 
@@ -142,7 +142,7 @@ func testMainWrapper(m *testing.M) int {
 	mysqlExpected.AddTables(mysqlNumericTable, mysqlStringTable, mysqlTimeTable, mysqlSpatialTable, mysqlFK1Table, mysqlFK2Table)
 
 	mysqlNumericTable.AddFields([]*spec.Field{
-		{Name: "bigint", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Index: true, Nullable: false, Comment: "bigint comment", PrimaryKey: true, Unique: true, Filterable: true, Sortable: true, Ops: spec.NumericOps},
+		{Name: "bigint", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Index: true, Nullable: false, Comment: "中文bigint comment", PrimaryKey: true, Unique: true, Filterable: true, Sortable: true, Ops: spec.NumericOps},
 		{Name: "bigint1", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Ops: spec.NumericOps},
 		{Name: "bit", Type: &spec.BitType{Name: "bit", Len: 1}},
 		{Name: "int", Type: &spec.IntegerType{Name: "int", Size: 32}, Ops: spec.NumericOps},
@@ -216,16 +216,16 @@ func testMainWrapper(m *testing.M) int {
 		// 	version:  "5.7.32",
 		// 	expected: mysqlExpected,
 		// },
-		{
-			dialect:  cre.MySQL,
-			version:  "8.0.22",
-			expected: mysqlExpected,
-		},
 		// {
-		// 	dialect:  cre.Postgres,
-		// 	version:  "13.1",
-		// 	expected: pgExpected,
+		// 	dialect:  cre.MySQL,
+		// 	version:  "8.0.22",
+		// 	expected: mysqlExpected,
 		// },
+		{
+			dialect:  cre.Postgres,
+			version:  "13.1",
+			expected: pgExpected,
+		},
 		// {
 		// 	dialect:  cre.Postgres,
 		// 	version:  "12.5",

@@ -51,6 +51,12 @@ func TestConvert(t *testing.T) {
 						Comment: "c4 comment",
 						Table:   tables[0],
 					},
+					{
+						Name:    "c5",
+						Type:    &spec.StringType{},
+						Comment: "中文 comment",
+						Table:   tables[0],
+					},
 				}
 
 				tables[0].Columns = columns
@@ -92,6 +98,10 @@ func TestConvert(t *testing.T) {
 					spec.Builder("c4").
 						Type(&spec.StringType{}).
 						Comment("c4 comment").
+						Build(),
+					spec.Builder("c5").
+						Type(&spec.StringType{}).
+						Comment("中文 comment").
 						Build(),
 				)
 

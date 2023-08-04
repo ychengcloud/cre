@@ -2,7 +2,7 @@ CREATE DATABASE IF NOT EXISTS `test`;
 
 DROP TABLE IF EXISTS `numeric`;
 CREATE TABLE `numeric` (
-  `bigint` bigint NOT NULL AUTO_INCREMENT COMMENT 'bigint comment',
+  `bigint` bigint NOT NULL AUTO_INCREMENT COMMENT '中文bigint comment',
   `bigint1` bigint(20) NOT NULL,
   `bit` bit NOT NULL,
   `int` int NOT NULL,

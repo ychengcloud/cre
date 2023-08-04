@@ -185,23 +185,46 @@ func (i *inspect) columns(ctx context.Context, t *schema.Table) ([]*schema.Colum
 			return nil, err
 		}
 
-		ct, err := ParseType(colType.String)
-		if err != nil {
-			return nil, err
-		}
 		column := &schema.Column{
-			Name:      name.String,
-			Type:      ct,
-			Comment:   comment.String,
-			Default:   defaults,
-			Nullable:  nullable.String == "YES",
-			Charset:   charset.String,
-			Collation: collation.String,
-			Primary:   key.String == "PRI",
-			Table:     t,
+			Default: defaults,
+			Table:   t,
 		}
 
-		parseExtra(column, extra.String)
+		if colType.Valid {
+			ct, err := ParseType(colType.String)
+			if err != nil {
+				return nil, err
+			}
+			column.Type = ct
+		}
+
+		if name.Valid {
+			column.Name = name.String
+		}
+
+		if charset.Valid {
+			column.Charset = charset.String
+		}
+
+		if collation.Valid {
+			column.Collation = collation.String
+		}
+
+		if comment.Valid {
+			column.Comment = comment.String
+		}
+
+		if nullable.Valid {
+			column.Nullable = nullable.String == "YES"
+		}
+
+		if key.Valid {
+			column.Primary = key.String == "PRI"
+		}
+
+		if extra.Valid {
+			parseExtra(column, extra.String)
+		}
 
 		switch column.Type.(type) {
 		case *spec.FloatType:

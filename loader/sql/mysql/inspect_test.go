@@ -64,7 +64,7 @@ func TestTables(t *testing.T) {
 				mock.ExpectQuery(Escape(ColumnsQuery)).
 					WithArgs("test", "table").
 					WillReturnRows(sqlmock.NewRows(ColumnsQueryFields).
-						AddRow("bigint", "bigint(20)", "bigint comment", "NO", "PRI", nil, "auto_increment", "", "", nil, nil).
+						AddRow("bigint", "bigint(20)", "中文bigint comment", "NO", "PRI", nil, "auto_increment", "", "", nil, nil).
 						AddRow("varchar", "varchar(255)", "varchar comment", "YES", "YES", nil, "", "", "", nil, nil).
 						AddRow("varchar1", "varchar(255) character set utf8mb4_bin collate utf8mb4_bin", "varchar1 comment", "YES", "YES", nil, "", "", "", nil, nil).
 						AddRow("longtext", "longtext", "longtext comment", "YES", "YES", nil, "", "", "", nil, nil).
@@ -200,7 +200,7 @@ func TestTables(t *testing.T) {
 							Name: "bigint",
 							Size: 64,
 						},
-						Comment:       "bigint comment",
+						Comment:       "中文bigint comment",
 						Primary:       true,
 						AutoIncrement: true,
 						Table:         table,

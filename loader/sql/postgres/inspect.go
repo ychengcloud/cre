@@ -111,9 +111,12 @@ func (i *inspect) tables(ctx context.Context) ([]*schema.Table, error) {
 		}
 
 		table := &schema.Table{
-			Name:    name,
-			Schema:  i.schema,
-			Comment: comment.String,
+			Name:   name,
+			Schema: i.schema,
+		}
+
+		if comment.Valid {
+			table.Comment = comment.String
 		}
 		tables = append(tables, table)
 
@@ -179,32 +182,67 @@ func (i *inspect) columns(ctx context.Context, t *schema.Table) ([]*schema.Colum
 			return nil, fmt.Errorf("postgres/columns: scan rows [%w]", err)
 		}
 
-		ci := &columnInfo{
-			dataType:  dataType.String,
-			nullable:  nullable.String == "YES",
-			precision: precision.Int64,
-			scale:     scale.Int64,
-			size:      maxlen.Int64,
-			charset:   charset.String,
-			collation: collation.String,
-			udt:       udt.String,
-			typtype:   typtype.String,
+		ci := &columnInfo{}
+
+		if dataType.Valid {
+			ci.dataType = dataType.String
 		}
+		if nullable.Valid {
+			ci.nullable = nullable.String == "YES"
+		}
+		if precision.Valid {
+			ci.precision = precision.Int64
+		}
+		if scale.Valid {
+			ci.scale = scale.Int64
+		}
+		if maxlen.Valid {
+			ci.size = maxlen.Int64
+		}
+		if charset.Valid {
+			ci.charset = charset.String
+		}
+		if collation.Valid {
+			ci.collation = collation.String
+		}
+		if udt.Valid {
+			ci.udt = udt.String
+		}
+		if typtype.Valid {
+			ci.typtype = typtype.String
+		}
+
 		ct, err := parseType(ci)
 		if err != nil {
 			return nil, fmt.Errorf("postgres/columns: parse type [%s, %w]", t.Name, err)
 		}
 		column := &schema.Column{
-			Name:      name.String,
-			Type:      ct,
-			Comment:   comment.String,
-			Default:   defaults,
-			Nullable:  nullable.String == "YES",
-			Charset:   charset.String,
-			Collation: collation.String,
+			Type:    ct,
+			Default: defaults,
 
 			Table: t,
 		}
+
+		if name.Valid {
+			column.Name = name.String
+		}
+
+		if comment.Valid {
+			column.Comment = comment.String
+		}
+
+		if nullable.Valid {
+			column.Nullable = nullable.String == "YES"
+		}
+
+		if charset.Valid {
+			column.Charset = charset.String
+		}
+
+		if collation.Valid {
+			column.Collation = collation.String
+		}
+
 		switch column.Type.(type) {
 		case *spec.FloatType:
 			column.Precision = int(precision.Int64)
