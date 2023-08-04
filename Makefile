@@ -70,7 +70,11 @@ test-coverage: fmt vet test-coverage-tools ; $(info $(M) running coverage testsâ
 .PHONY: test-gen
 test-gen:
 	go generate ./...
-	
+
+test-rootless:
+	@echo "Running docker rootless tests"
+	DOCKER_HOST="unix:///run/user/1000/docker.sock" $(GO) test -v ./test/..
+
 .PHONY: vet
 vet:  ; $(info $(M) running go vet ...) @ ## Run go vet
 	$(GO) vet $(PKGS)

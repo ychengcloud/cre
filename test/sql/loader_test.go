@@ -142,49 +142,49 @@ func testMainWrapper(m *testing.M) int {
 	mysqlExpected.AddTables(mysqlNumericTable, mysqlStringTable, mysqlTimeTable, mysqlSpatialTable, mysqlFK1Table, mysqlFK2Table)
 
 	mysqlNumericTable.AddFields([]*spec.Field{
-		{Name: "bigint", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, Comment: "bigint comment", PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
-		{Name: "bigint1", Type: &spec.IntegerType{Name: "bigint", Size: 64}},
+		{Name: "bigint", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Index: true, Nullable: false, Comment: "bigint comment", PrimaryKey: true, Unique: true, Filterable: true, Sortable: true, Ops: spec.NumericOps},
+		{Name: "bigint1", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Ops: spec.NumericOps},
 		{Name: "bit", Type: &spec.BitType{Name: "bit", Len: 1}},
-		{Name: "int", Type: &spec.IntegerType{Name: "int", Size: 32}},
-		{Name: "tinyint", Type: &spec.IntegerType{Name: "tinyint", Size: 8}},
-		{Name: "smallint", Type: &spec.IntegerType{Name: "smallint", Size: 16}},
-		{Name: "mediumint", Type: &spec.IntegerType{Name: "mediumint", Size: 32}},
-		{Name: "decimal", Type: &spec.FloatType{Name: "decimal", Precision: 10, Scale: 0}},
-		{Name: "decimal1", Type: &spec.FloatType{Name: "decimal", Precision: 10, Scale: 2}},
-		{Name: "numeric", Type: &spec.FloatType{Name: "decimal", Precision: 10, Scale: 0}},
-		{Name: "float", Type: &spec.FloatType{Name: "float"}},
-		{Name: "float1", Type: &spec.FloatType{Name: "float", Precision: 10, Scale: 2}},
-		{Name: "double", Type: &spec.FloatType{Name: "double"}},
-		{Name: "double1", Type: &spec.FloatType{Name: "double", Precision: 10, Scale: 2}},
-		{Name: "real", Type: &spec.FloatType{Name: "double"}},
-		{Name: "real1", Type: &spec.FloatType{Name: "double", Precision: 10, Scale: 2}},
+		{Name: "int", Type: &spec.IntegerType{Name: "int", Size: 32}, Ops: spec.NumericOps},
+		{Name: "tinyint", Type: &spec.IntegerType{Name: "tinyint", Size: 8}, Ops: spec.NumericOps},
+		{Name: "smallint", Type: &spec.IntegerType{Name: "smallint", Size: 16}, Ops: spec.NumericOps},
+		{Name: "mediumint", Type: &spec.IntegerType{Name: "mediumint", Size: 32}, Ops: spec.NumericOps},
+		{Name: "decimal", Type: &spec.FloatType{Name: "decimal", Precision: 10, Scale: 0}, Ops: spec.NumericOps},
+		{Name: "decimal1", Type: &spec.FloatType{Name: "decimal", Precision: 10, Scale: 2}, Ops: spec.NumericOps},
+		{Name: "numeric", Type: &spec.FloatType{Name: "decimal", Precision: 10, Scale: 0}, Ops: spec.NumericOps},
+		{Name: "float", Type: &spec.FloatType{Name: "float"}, Ops: spec.NumericOps},
+		{Name: "float1", Type: &spec.FloatType{Name: "float", Precision: 10, Scale: 2}, Ops: spec.NumericOps},
+		{Name: "double", Type: &spec.FloatType{Name: "double"}, Ops: spec.NumericOps},
+		{Name: "double1", Type: &spec.FloatType{Name: "double", Precision: 10, Scale: 2}, Ops: spec.NumericOps},
+		{Name: "real", Type: &spec.FloatType{Name: "double"}, Ops: spec.NumericOps},
+		{Name: "real1", Type: &spec.FloatType{Name: "double", Precision: 10, Scale: 2}, Ops: spec.NumericOps},
 	}...)
 
 	mysqlStringTable.AddFields([]*spec.Field{
-		{Name: "char", Type: &spec.StringType{Name: "char", Size: 1}},
-		{Name: "char1", Type: &spec.StringType{Name: "char", Size: 10}},
-		{Name: "varchar", Type: &spec.StringType{Name: "varchar", Size: 255}},
-		{Name: "binary", Type: &spec.StringType{Name: "binary", Size: 1}},
-		{Name: "varbinary", Type: &spec.StringType{Name: "varbinary", Size: 255}},
-		{Name: "tinyblob", Type: &spec.StringType{Name: "tinyblob"}},
-		{Name: "tinytext", Type: &spec.StringType{Name: "tinytext"}},
-		{Name: "blob", Type: &spec.StringType{Name: "blob"}},
-		{Name: "text", Type: &spec.StringType{Name: "text"}},
-		{Name: "mediumblob", Type: &spec.StringType{Name: "mediumblob"}},
-		{Name: "mediumtext", Type: &spec.StringType{Name: "mediumtext"}},
-		{Name: "longblob", Type: &spec.StringType{Name: "longblob"}},
-		{Name: "longtext", Type: &spec.StringType{Name: "longtext"}},
-		{Name: "enum", Type: &spec.EnumType{Name: "enum", Values: []string{"a", "b", "c"}}},
-		{Name: "set", Type: &spec.EnumType{Name: "set", Values: []string{"a", "b", "c"}}},
+		{Name: "char", Type: &spec.StringType{Name: "char", Size: 1}, Ops: spec.StringOps},
+		{Name: "char1", Type: &spec.StringType{Name: "char", Size: 10}, Ops: spec.StringOps},
+		{Name: "varchar", Type: &spec.StringType{Name: "varchar", Size: 255}, Ops: spec.StringOps},
+		{Name: "binary", Type: &spec.StringType{Name: "binary", Size: 1}, Ops: spec.StringOps},
+		{Name: "varbinary", Type: &spec.StringType{Name: "varbinary", Size: 255}, Ops: spec.StringOps},
+		{Name: "tinyblob", Type: &spec.StringType{Name: "tinyblob"}, Ops: spec.StringOps},
+		{Name: "tinytext", Type: &spec.StringType{Name: "tinytext"}, Ops: spec.StringOps},
+		{Name: "blob", Type: &spec.StringType{Name: "blob"}, Ops: spec.StringOps},
+		{Name: "text", Type: &spec.StringType{Name: "text"}, Ops: spec.StringOps},
+		{Name: "mediumblob", Type: &spec.StringType{Name: "mediumblob"}, Ops: spec.StringOps},
+		{Name: "mediumtext", Type: &spec.StringType{Name: "mediumtext"}, Ops: spec.StringOps},
+		{Name: "longblob", Type: &spec.StringType{Name: "longblob"}, Ops: spec.StringOps},
+		{Name: "longtext", Type: &spec.StringType{Name: "longtext"}, Ops: spec.StringOps},
+		{Name: "enum", Type: &spec.EnumType{Name: "enum", Values: []string{"a", "b", "c"}}, Ops: spec.EnumOps},
+		{Name: "set", Type: &spec.EnumType{Name: "set", Values: []string{"a", "b", "c"}}, Ops: spec.EnumOps},
 		{Name: "json", Type: &spec.JSONType{Name: "json"}},
 	}...)
 
 	mysqlTimeTable.AddFields([]*spec.Field{
-		{Name: "date", Type: &spec.TimeType{Name: "date"}},
-		{Name: "time", Type: &spec.TimeType{Name: "time"}},
-		{Name: "timestamp", Type: &spec.TimeType{Name: "timestamp"}},
-		{Name: "datetime", Type: &spec.TimeType{Name: "datetime"}},
-		{Name: "year", Type: &spec.TimeType{Name: "year"}},
+		{Name: "date", Type: &spec.TimeType{Name: "date"}, Ops: spec.NumericOps},
+		{Name: "time", Type: &spec.TimeType{Name: "time"}, Ops: spec.NumericOps},
+		{Name: "timestamp", Type: &spec.TimeType{Name: "timestamp"}, Ops: spec.NumericOps},
+		{Name: "datetime", Type: &spec.TimeType{Name: "datetime"}, Ops: spec.NumericOps},
+		{Name: "year", Type: &spec.TimeType{Name: "year"}, Ops: spec.NumericOps},
 	}...)
 
 	mysqlSpatialTable.AddFields([]*spec.Field{
@@ -200,13 +200,13 @@ func testMainWrapper(m *testing.M) int {
 	}...)
 
 	mysqlFK1Table.AddFields([]*spec.Field{
-		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
-		{Name: "fkid", Type: &spec.IntegerType{Name: "bigint", Size: 64}, ForeignKey: true},
+		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Index: true, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true, Ops: spec.NumericOps},
+		{Name: "fkid", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Index: true, ForeignKey: true, Filterable: true, Ops: spec.NumericOps},
 	}...)
 	mysqlFK1Table.ID = mysqlFK1Table.GetField("id")
 
 	mysqlFK2Table.AddFields([]*spec.Field{
-		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true},
+		{Name: "id", Type: &spec.IntegerType{Name: "bigint", Size: 64}, Index: true, Nullable: false, PrimaryKey: true, Unique: true, Filterable: true, Sortable: true, Ops: spec.NumericOps},
 	}...)
 	mysqlFK2Table.ID = mysqlFK2Table.GetField("id")
 
@@ -216,16 +216,16 @@ func testMainWrapper(m *testing.M) int {
 		// 	version:  "5.7.32",
 		// 	expected: mysqlExpected,
 		// },
-		// {
-		// 	dialect:  cre.MySQL,
-		// 	version:  "8.0.22",
-		// 	expected: mysqlExpected,
-		// },
 		{
-			dialect:  cre.Postgres,
-			version:  "13.1",
-			expected: pgExpected,
+			dialect:  cre.MySQL,
+			version:  "8.0.22",
+			expected: mysqlExpected,
 		},
+		// {
+		// 	dialect:  cre.Postgres,
+		// 	version:  "13.1",
+		// 	expected: pgExpected,
+		// },
 		// {
 		// 	dialect:  cre.Postgres,
 		// 	version:  "12.5",
@@ -316,22 +316,22 @@ func matchTable(t *testing.T, expected *spec.Table, table *spec.Table) {
 }
 
 func matchField(t *testing.T, expected *spec.Field, field *spec.Field) {
-	require.Equal(t, expected.Name, field.Name)
-	require.Equal(t, expected.Type, field.Type)
-	require.Equal(t, expected.Nullable, field.Nullable)
-	require.Equal(t, expected.Optional, field.Optional)
-	require.Equal(t, expected.Sensitive, field.Sensitive)
-	require.Equal(t, expected.Tag, field.Tag)
-	require.Equal(t, expected.Comment, field.Comment)
-	require.Equal(t, expected.Alias, field.Alias)
-	require.Equal(t, expected.Sortable, field.Sortable)
-	require.Equal(t, expected.Filterable, field.Filterable)
-	require.Equal(t, expected.ForeignKey, field.ForeignKey)
-	require.Equal(t, expected.PrimaryKey, field.PrimaryKey)
-	require.Equal(t, expected.Index, field.Index)
-	require.Equal(t, expected.Unique, field.Unique)
-	require.EqualValues(t, expected.Rel, field.Rel)
-	require.EqualValues(t, expected.Ops, field.Ops)
-	require.EqualValues(t, expected.Attrs, field.Attrs)
-	require.Equal(t, expected.Table.Name, field.Table.Name)
+	require.Equal(t, expected.Name, field.Name, "Name", field)
+	require.Equal(t, expected.Type, field.Type, "Type", field)
+	require.Equal(t, expected.Nullable, field.Nullable, "Nullable", field)
+	require.Equal(t, expected.Optional, field.Optional, "Optional", field)
+	require.Equal(t, expected.Sensitive, field.Sensitive, "Sensitive", field)
+	require.Equal(t, expected.Tag, field.Tag, "Tag", field)
+	require.Equal(t, expected.Comment, field.Comment, "Comment", field)
+	require.Equal(t, expected.Alias, field.Alias, "Alias", field)
+	require.Equal(t, expected.Sortable, field.Sortable, "Sortable", field)
+	require.Equal(t, expected.Filterable, field.Filterable, "Filterable", field)
+	require.Equal(t, expected.ForeignKey, field.ForeignKey, "ForeignKey", field)
+	require.Equal(t, expected.PrimaryKey, field.PrimaryKey, "PrimaryKey", field)
+	require.Equal(t, expected.Index, field.Index, "Index", field)
+	require.Equal(t, expected.Unique, field.Unique, "Unique", field)
+	require.EqualValues(t, expected.Rel, field.Rel, "Rel", field)
+	require.EqualValues(t, expected.Ops, field.Ops, "Ops", field)
+	require.EqualValues(t, expected.Attrs, field.Attrs, "Attrs", field)
+	require.Equal(t, expected.Table.Name, field.Table.Name, "Name", field)
 }

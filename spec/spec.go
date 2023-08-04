@@ -406,6 +406,8 @@ func defaultOps(t Type, nullable bool) (ops []Op) {
 		ops = EnumOps
 	case *IntegerType:
 		ops = NumericOps
+	case *FloatType:
+		ops = NumericOps
 	case *StringType:
 		ops = StringOps
 	case *TimeType:
